@@ -1,0 +1,19 @@
+{
+  "name": "thirst-mobile",
+  "version": "1.0.0",
+  "description": "Native mobile app (Android & iOS) for Thirst — https://group-gamble-go.lovable.app",
+  "private": true,
+  "scripts": {
+    "sync": "cap sync",
+    "open:android": "cap open android",
+    "open:ios": "cap open ios",
+    "build:android": "cd android && ./gradlew bundleRelease"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "^8.4.1"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "appId": "app.thirst.mobile",
+  "appName": "Thirst",
+  "webDir": "www",
+  "server": {
+    "url": "https://group-gamble-go.lovable.app",
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  },
+  "ios": {
+    "contentInset": "automatic"
+  }
+}
