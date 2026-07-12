@@ -1,31 +1,56 @@
 # Thirst — Mobile App (Android & iOS)
 
-Native mobile app for [https://group-gamble-go.lovable.app](https://group-gamble-go.lovable.app), built with [Capacitor](https://capacitorjs.com/).
+**Thirst** is a social drinking card game: on your turn, pick one of the challenge cards — or take 15 sips. Built with Vite + React + TypeScript + Tailwind + shadcn/ui, packaged as native Android & iOS apps with [Capacitor](https://capacitorjs.com/).
 
-## How it works
-
-The app is a native shell (real Android/iOS app) whose main screen loads the live site. This is the setup Lovable itself recommends for going mobile, and it has one big advantage:
-
-> **Every update you publish in Lovable appears in the app instantly.** You only need to resubmit to the stores when you change something native (app name, icon, plugins).
-
-If the device is offline, a friendly "You're offline" screen (`www/index.html`) is shown instead.
+The full web app is **bundled inside the app binary** (no server, no network needed — the game is 100 % offline). This repo is the single source of truth; the old Lovable remote-URL setup is gone.
 
 ## Project layout
 
 | Path | What it is |
 |---|---|
-| `capacitor.config.json` | App identity (`app.thirst.mobile`, "Thirst") and the site URL it loads |
+| `src/` | The app itself (React + TypeScript) |
+| `public/` | Static assets (favicon etc.) |
+| `capacitor.config.json` | App identity (`app.thirst.mobile`, "Thirst") + native plugin config |
 | `android/` | Complete Android Studio project |
-| `ios/` | Complete Xcode project |
-| `www/` | Offline fallback page |
+| `ios/` | Complete Xcode project (SPM, no CocoaPods) |
+| `dist/` | Vite build output — what Capacitor copies into the apps (generated, not committed) |
 
-## Prerequisites
+## Everyday development
 
-- Node.js 20+ — run `npm install` once after cloning
-- **Android:** [Android Studio](https://developer.android.com/studio) + a [Google Play Console account](https://play.google.com/console) ($25 one-time)
-- **iOS:** a Mac with [Xcode](https://developer.apple.com/xcode/) + an [Apple Developer account](https://developer.apple.com/programs/) ($99/year)
+```bash
+npm install          # once
+npm run dev          # dev server at http://localhost:8080
+npm test             # vitest
+npm run lint         # eslint
+```
 
-## 1. App icon & splash screen (do this first)
+## Building the mobile apps
+
+```bash
+npm run build        # web bundle → dist/
+npx cap sync         # copy dist/ + plugins into android/ and ios/
+```
+
+Any time you change web code, re-run those two (or `npm run sync`, which does both).
+
+- **Run on a connected Android phone:** `npm run android` (or open in Android Studio: `npm run open:android`)
+- **iOS (needs a Mac):** `npm run open:ios`, then run from Xcode
+
+> Android builds need a JDK. If `gradlew` can't find one, Android Studio's works fine:
+> `JAVA_HOME = C:\Program Files\Android\Android Studio\jbr` (Windows) — and `android/local.properties` must point at your SDK (Android Studio creates it automatically).
+
+## Native behaviors (already wired in)
+
+- **Bundled fonts** (`@fontsource`) — identical rendering offline
+- **Safe-area insets** for notches/home indicator (`viewport-fit=cover` + `env(safe-area-inset-*)` padding)
+- **No pinch-zoom, text selection, long-press callouts, overscroll bounce** — feels like an app, not a page
+- **Android back button:** minimizes the app on the setup screen; during a game, press twice within 2 s to end it
+- **Game survives restarts** — state is persisted to localStorage, so a phone call or app kill doesn't lose the round
+- **Splash screen + status bar** styled to the theme (`capacitor.config.json` → `plugins`)
+- **Haptic feedback** on card picks
+- **Error boundary** with a friendly restart screen
+
+## 1. App icon & splash screen (do this before store submission)
 
 Put two images in an `assets/` folder at the repo root:
 
@@ -41,55 +66,52 @@ npx capacitor-assets generate
 
 This generates every required icon/splash size for both platforms automatically.
 
-## 2. Android — build & submit to Google Play
+## 2. Versioning
+
+Bump on every store release:
+
+- **Android:** `android/app/build.gradle` → `versionCode` (integer, +1 each release) and `versionName` (e.g. "1.1")
+- **iOS:** Xcode → App target → General → Version / Build
+- Keep `package.json` `version` in step for sanity
+
+## 3. Android — build & submit to Google Play
 
 ```bash
-npm install
-npx cap sync android
+npm run build && npx cap sync android
 npx cap open android   # opens Android Studio
 ```
 
 In Android Studio:
 
-1. **Create a signing key** (one time): *Build → Generate Signed App Bundle → Create new keystore*. **Back the keystore file and passwords up somewhere safe** — losing it means you can never update the app again.
+1. **Create a signing key** (one time): *Build → Generate Signed App Bundle → Create new keystore*. **Back the keystore file and both passwords up somewhere safe** (password manager + offline copy) — losing it means you can never update the app again.
 2. Build a **signed App Bundle (.aab)** with *Build → Generate Signed App Bundle*.
-3. In [Play Console](https://play.google.com/console): create the app "Thirst", fill in the store listing (description, screenshots, privacy policy URL), upload the `.aab` to a release, complete the content-rating and data-safety questionnaires, and submit for review.
+3. In [Play Console](https://play.google.com/console) ($25 one-time): create the app "Thirst", fill in the store listing (description, screenshots, privacy policy URL), upload the `.aab` to a release, complete the content-rating questionnaire (**declare alcohol references — expect an 18+ rating**) and the data-safety form (**the app collects no data**), and submit for review.
 
-## 3. iOS — build & submit to the App Store
+## 4. iOS — build & submit to the App Store
 
-On a Mac:
+On a Mac with Xcode and an [Apple Developer account](https://developer.apple.com/programs/) ($99/year):
 
 ```bash
-npm install
-npx cap sync ios
-npx cap open ios   # opens Xcode
+npm install && npm run build && npx cap sync ios
+npx cap open ios
 ```
 
 In Xcode:
 
-1. Select the **App** target → *Signing & Capabilities* → choose your Apple Developer team (Xcode manages certificates automatically).
-2. Select *Any iOS Device* as the target, then *Product → Archive*.
-3. In the Organizer window, click **Distribute App → App Store Connect**.
-4. In [App Store Connect](https://appstoreconnect.apple.com/): create the app "Thirst" (bundle ID `app.thirst.mobile`), fill in the listing, attach the uploaded build, and submit for review.
+1. Select the **App** target → *Signing & Capabilities* → choose your team (Xcode manages certificates automatically).
+2. Select *Any iOS Device*, then *Product → Archive*.
+3. In the Organizer, **Distribute App → App Store Connect**.
+4. In [App Store Connect](https://appstoreconnect.apple.com/): create the app "Thirst" (bundle ID `app.thirst.mobile`), set the age rating (**17+, alcohol references**), fill in the listing, attach the build, and submit for review.
 
-## Important notes before submitting
+## Store-review notes (read before submitting)
 
-### ⚠️ If the app involves real-money gambling or betting
-
-Both stores have strict gambling policies: you'd need gambling licenses for every country you publish in, geo-restrictions, and an adult age rating — and Apple additionally requires the developer account to belong to a licensed entity. **If Thirst is social/fun only (no real money changes hands through the app), you're fine** — but make that unambiguous in the app itself and in the store descriptions to avoid rejection.
-
-### Apple and "web wrapper" apps
-
-Apple sometimes rejects apps that are only a website in a shell (guideline 4.2 "minimum functionality"). Google Play is far more lenient. Two ways to strengthen the iOS submission if needed:
-
-1. Add a native touch or two — e.g. push notifications (`@capacitor/push-notifications`) or haptics — and mention them in the review notes.
-2. **Bundle the app code inside the binary** instead of loading the URL: connect your Lovable project to this GitHub repo (Lovable → GitHub → *Connect*, pointing at this repo), then build the web app into `www/` and remove the `server.url` line from `capacitor.config.json`. This makes the app fully self-contained and is the most review-proof setup.
-
-### Privacy policy
-
-Both stores require a privacy policy URL. You can generate the page in Lovable (e.g. `/privacy`) and link to it.
+- **No real-money gambling:** Thirst is a social party game — no money, no wagers, no prizes. Say so explicitly in both store descriptions so reviewers don't misread "drinking card game". The strict gambling policies (licenses, geo-restrictions) don't apply.
+- **Alcohol content:** both stores allow it with the right age rating (Google: content questionnaire; Apple: 17+ with "Alcohol, Tobacco, or Drug Use" flag). Consider a "drink responsibly" line in the description.
+- **Apple "minimum functionality" (guideline 4.2):** the app is fully self-contained with native behaviors (offline play, haptics, state persistence) — this is the review-proof setup. Mention it in the review notes if asked.
+- **Privacy policy:** both stores require a URL even though the app collects **zero** data (no accounts, no analytics, no network calls). A one-page "this app stores game state on your device only" policy hosted anywhere (e.g. GitHub Pages) is enough.
 
 ## Updating the app later
 
-- **Site content/features changed in Lovable:** nothing to do — the app shows them immediately.
-- **Native changes** (name, icon, plugins, the URL itself): bump `versionCode`/`versionName` in `android/app/build.gradle` and the version in Xcode, rebuild, and upload a new release to each store.
+1. Change the web code in `src/`
+2. `npm run build && npx cap sync`
+3. Bump versions (see §2), rebuild the signed .aab / archive, upload a new release to each store.
