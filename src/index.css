@@ -49,11 +49,13 @@
     --sidebar-border: 220 15% 88%;
     --sidebar-ring: 250 65% 55%;
 
-    /* Safe-area insets (notches, home indicator, status bar) */
-    --safe-top: env(safe-area-inset-top, 0px);
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-left: env(safe-area-inset-left, 0px);
-    --safe-right: env(safe-area-inset-right, 0px);
+    /* Safe-area insets (notches, home indicator, status bar).
+       Capacitor's SystemBars plugin injects --safe-area-inset-* on Android;
+       env() covers iOS and browsers. */
+    --safe-top: var(--safe-area-inset-top, env(safe-area-inset-top, 0px));
+    --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
+    --safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
+    --safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
   }
 
   .dark {
@@ -125,5 +127,21 @@
   textarea {
     -webkit-user-select: text;
     user-select: text;
+  }
+
+  /* Frosted scrim under the transparent status bar so scrolled content
+     doesn't collide with the clock (edge-to-edge Android / iOS notch) */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--safe-top);
+    background: hsl(var(--background) / 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 50;
+    pointer-events: none;
   }
 }

@@ -12,6 +12,8 @@ export async function initNative() {
     // Light theme → dark status-bar text
     await StatusBar.setStyle({ style: Style.Light });
     if (Capacitor.getPlatform() === "android") {
+      // No-op on Android 15+ enforced edge-to-edge; there the CSS status-bar
+      // scrim in index.css covers the inset instead
       await StatusBar.setBackgroundColor({ color: "#f4f5f9" });
     }
   } catch {
