@@ -39,12 +39,19 @@ Any time you change web code, re-run those two (or `npm run sync`, which does bo
 > Android builds need a JDK. If `gradlew` can't find one, Android Studio's works fine:
 > `JAVA_HOME = C:\Program Files\Android\Android Studio\jbr` (Windows) — and `android/local.properties` must point at your SDK (Android Studio creates it automatically).
 
+## App shell
+
+- **Bottom tab navigation** — Play (setup + game), Cards (browse every pack, create/delete custom cards), Info (rules, card-type legend, settings, about)
+- **Animated transitions** (framer-motion) — tab switches, setup ↔ game, turn-to-turn card dealing, and a quick "Chosen!" flash when a card is picked
+- **Confirmations** — ending a game and clearing data both ask first
+- **Settings** — haptics toggle, clear-all-data; stored on device
+
 ## Native behaviors (already wired in)
 
 - **Bundled fonts** (`@fontsource`) — identical rendering offline
 - **Safe-area insets** for notches/home indicator (`viewport-fit=cover` + `env(safe-area-inset-*)` padding)
 - **No pinch-zoom, text selection, long-press callouts, overscroll bounce** — feels like an app, not a page
-- **Android back button:** minimizes the app on the setup screen; during a game, press twice within 2 s to end it
+- **Android back button:** returns to the Play tab from other tabs; minimizes the app on the setup screen; during a game, press twice within 2 s to end it
 - **Game survives restarts** — state is persisted to localStorage, so a phone call or app kill doesn't lose the round
 - **Splash screen + status bar** styled to the theme (`capacitor.config.json` → `plugins`)
 - **Haptic feedback** on card picks

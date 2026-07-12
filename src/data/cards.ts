@@ -12,6 +12,7 @@ export const ALL_EXTENSIONS = [
   "HEAVYDRINKER",
   "BAR",
   "BTCH",
+  "CUSTOM",
 ] as const;
 
 export type Extension = (typeof ALL_EXTENSIONS)[number];

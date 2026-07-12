@@ -2,20 +2,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Users, Plus, Minus, Play, PlusCircle, Trash2, Layers } from "lucide-react";
-import { ALL_EXTENSIONS, type Extension, type Card } from "@/data/cards";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ALL_EXTENSIONS, DEFAULT_CARDS, type Extension, type Card } from "@/data/cards";
+import { CustomCardDialog } from "@/components/CustomCardDialog";
+import { useGame } from "@/context/GameContext";
 
 interface PlayerSetupProps {
   onStart: (players: string[], extensions: Extension[], customCards: Card[], cardsPerTurn: number) => void;
   /** Prefill from the previous game so "New Game" keeps the same crew and settings */
   initialPlayers?: string[];
   initialExtensions?: Extension[];
-  initialCustomCards?: Card[];
   initialCardsPerTurn?: number;
 }
 
-export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initialCustomCards, initialCardsPerTurn }: PlayerSetupProps) {
+export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initialCardsPerTurn }: PlayerSetupProps) {
+  const { customCards, removeCustomCard } = useGame();
   const [playerCount, setPlayerCount] = useState(() =>
     initialPlayers && initialPlayers.length >= 2 ? Math.min(15, initialPlayers.length) : 4
   );
@@ -27,15 +27,7 @@ export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initia
   const [enabledExtensions, setEnabledExtensions] = useState<Set<Extension>>(
     () => new Set(initialExtensions?.length ? initialExtensions : ["ORIGINAL"])
   );
-  const [customCards, setCustomCards] = useState<Card[]>(initialCustomCards ?? []);
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [cardsPerTurn, setCardsPerTurn] = useState(initialCardsPerTurn ?? 3);
-
-  // New card form
-  const [newName, setNewName] = useState("");
-  const [newRule, setNewRule] = useState("");
-  const [newType, setNewType] = useState<Card["type"]>("Strike");
-  const [newExtension, setNewExtension] = useState<string>("ORIGINAL");
 
   const updateName = (index: number, value: string) => {
     setNames((prev) => {
@@ -57,20 +49,11 @@ export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initia
     });
   };
 
-  const addCustomCard = () => {
-    if (!newName.trim() || !newRule.trim()) return;
-    setCustomCards((prev) => [
-      ...prev,
-      { type: newType, name: newName.trim(), rule: newRule.trim(), extension: newExtension },
-    ]);
-    setNewName("");
-    setNewRule("");
-    setDialogOpen(false);
-  };
-
-  const removeCustomCard = (index: number) => {
-    setCustomCards((prev) => prev.filter((_, i) => i !== index));
-  };
+  // The deck must hold at least one full turn of cards
+  const availableCardCount = [...DEFAULT_CARDS, ...customCards].filter((c) =>
+    enabledExtensions.has(c.extension as Extension)
+  ).length;
+  const deckTooSmall = availableCardCount < cardsPerTurn;
 
   const handleStart = () => {
     const playerNames = names
@@ -80,7 +63,7 @@ export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initia
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
+    <div className="flex min-h-[calc(100dvh-5rem)] flex-col items-center justify-center px-4 py-8">
       <div className="w-full max-w-lg space-y-6">
         {/* Title */}
         <div className="text-center">
@@ -178,52 +161,16 @@ export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initia
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
               Custom cards ({customCards.length})
             </p>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
+            <CustomCardDialog
+              trigger={
                 <Button variant="ghost" size="sm" className="gap-1 text-xs text-primary">
                   <PlusCircle className="h-3.5 w-3.5" /> Add card
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle className="font-display">Create a card</DialogTitle>
-                </DialogHeader>
-                <div className="space-y-3 pt-2">
-                  <Input placeholder="Card name" value={newName} onChange={(e) => setNewName(e.target.value)} />
-                  <textarea
-                    placeholder="Card rule / description"
-                    value={newRule}
-                    onChange={(e) => setNewRule(e.target.value)}
-                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  />
-                  <div className="grid grid-cols-2 gap-3">
-                    <Select value={newType} onValueChange={(v) => setNewType(v as Card["type"])}>
-                      <SelectTrigger><SelectValue placeholder="Type" /></SelectTrigger>
-                      <SelectContent>
-                        {(["Strike", "Gift", "Event", "Equip", "Special"] as const).map((t) => (
-                          <SelectItem key={t} value={t}>{t}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={newExtension} onValueChange={setNewExtension}>
-                      <SelectTrigger><SelectValue placeholder="Pack" /></SelectTrigger>
-                      <SelectContent>
-                        {ALL_EXTENSIONS.map((e) => (
-                          <SelectItem key={e} value={e}>{e}</SelectItem>
-                        ))}
-                        <SelectItem value="CUSTOM">CUSTOM</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button onClick={addCustomCard} className="w-full" disabled={!newName.trim() || !newRule.trim()}>
-                    Add to deck
-                  </Button>
-                </div>
-              </DialogContent>
-            </Dialog>
+              }
+            />
           </div>
           {customCards.length === 0 ? (
-            <p className="text-xs text-muted-foreground/60">No custom cards yet.</p>
+            <p className="text-xs text-muted-foreground/60">No custom cards yet. They also live in the Cards tab.</p>
           ) : (
             <div className="space-y-1.5 max-h-40 overflow-y-auto">
               {customCards.map((c, i) => (
@@ -244,11 +191,17 @@ export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initia
         {/* Start */}
         <Button
           onClick={handleStart}
+          disabled={deckTooSmall}
           className="w-full gap-2 py-6 font-display text-xl font-bold tracking-wide"
         >
           <Play className="h-5 w-5" />
           START GAME
         </Button>
+        {deckTooSmall && (
+          <p className="text-center text-xs text-destructive">
+            The selected packs only have {availableCardCount} card{availableCardCount === 1 ? "" : "s"} — pick more packs or fewer cards per turn.
+          </p>
+        )}
       </div>
     </div>
   );
