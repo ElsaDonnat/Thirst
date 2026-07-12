@@ -109,9 +109,8 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
-    /* Respect notches and system bars */
+    /* Respect notches and system bars (bottom inset is handled by the tab bar) */
     padding-top: var(--safe-top);
-    padding-bottom: var(--safe-bottom);
     padding-left: var(--safe-left);
     padding-right: var(--safe-right);
     /* App feel: no text selection, no long-press callout, no tap flash */

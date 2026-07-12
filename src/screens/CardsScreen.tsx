@@ -54,7 +54,7 @@ export function CardsScreen() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-lg px-4 py-6">
+    <div className="mx-auto w-full max-w-lg px-4 pb-24 pt-6">
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <div>

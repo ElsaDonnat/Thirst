@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { App as CapApp } from "@capacitor/app";
 import { toast } from "sonner";
 import { TabBar, type TabId } from "@/components/TabBar";
+import { WelcomeDialog } from "@/components/WelcomeDialog";
 import { PlayScreen } from "@/screens/PlayScreen";
 import { CardsScreen } from "@/screens/CardsScreen";
 import { InfoScreen } from "@/screens/InfoScreen";
@@ -48,18 +49,16 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="pb-20">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={tab}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.15 }}
-        >
-          {tab === "play" ? <PlayScreen /> : tab === "cards" ? <CardsScreen /> : <InfoScreen />}
-        </motion.div>
-      </AnimatePresence>
+    <div>
+      <WelcomeDialog />
+      <motion.div
+        key={tab}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15 }}
+      >
+        {tab === "play" ? <PlayScreen /> : tab === "cards" ? <CardsScreen /> : <InfoScreen />}
+      </motion.div>
       <TabBar tab={tab} onChange={setTab} />
     </div>
   );

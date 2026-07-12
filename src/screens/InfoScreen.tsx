@@ -1,4 +1,4 @@
-import { Vibrate, Trash2, BookOpen, Heart } from "lucide-react";
+import { Vibrate, Trash2, BookOpen, Heart, Coffee } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -17,6 +17,9 @@ import { useGame } from "@/context/GameContext";
 // Keep in step with package.json / store releases
 const APP_VERSION = "1.1.0";
 
+// TODO: replace with the real Buy Me a Coffee link once created
+const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/thirst-placeholder";
+
 const CARD_TYPES = [
   { type: "Strike", className: "bg-card-strike", blurb: "A challenge for you — do it or drink." },
   { type: "Gift", className: "bg-card-gift", blurb: "You hand it out — someone else drinks." },
@@ -29,7 +32,7 @@ export function InfoScreen() {
   const { settings, setHaptics, clearAllData } = useGame();
 
   return (
-    <div className="mx-auto w-full max-w-lg space-y-6 px-4 py-6">
+    <div className="mx-auto w-full max-w-lg space-y-6 px-4 pb-24 pt-6">
       <div>
         <h1 className="font-display text-3xl font-bold text-primary">Info</h1>
         <p className="text-xs text-muted-foreground">How to play, settings & about</p>
@@ -95,6 +98,20 @@ export function InfoScreen() {
             </AlertDialogContent>
           </AlertDialog>
         </div>
+      </div>
+
+      {/* Support */}
+      <div className="rounded-xl border border-border bg-card p-5 text-center">
+        <p className="font-body text-sm text-foreground/80">Enjoying the game?</p>
+        <Button
+          onClick={() => window.open(BUY_ME_A_COFFEE_URL, "_blank")}
+          className="mt-3 w-full gap-2 bg-amber-400 py-5 font-display text-base font-bold text-amber-950 hover:bg-amber-500"
+        >
+          <Coffee className="h-5 w-5" /> Buy me a coffee
+        </Button>
+        <p className="mt-2 text-[10px] text-muted-foreground/60">
+          Keeps the cards coming — thank you!
+        </p>
       </div>
 
       {/* About */}

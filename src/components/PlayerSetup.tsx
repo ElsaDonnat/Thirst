@@ -63,82 +63,83 @@ export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initia
   };
 
   return (
-    <div className="flex min-h-[calc(100dvh-5rem)] flex-col items-center justify-center px-4 py-8">
-      <div className="w-full max-w-lg space-y-6">
+    <div className="mx-auto w-full max-w-lg px-4 pb-24 pt-5">
+      <div className="space-y-3">
         {/* Title */}
         <div className="text-center">
-          <h1 className="font-display text-5xl font-bold tracking-tight text-primary">
+          <h1 className="font-display text-4xl font-bold tracking-tight text-primary">
             THIRST
           </h1>
-          <p className="mt-1 font-body text-sm text-muted-foreground">
+          <p className="font-body text-xs text-muted-foreground">
             The ultimate drinking card game
           </p>
         </div>
 
-        {/* Player count */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="mb-3 flex items-center gap-2 text-foreground">
-            <Users className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold">Players</span>
+        {/* Player count + cards per turn, side by side */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-xl border border-border bg-card p-3">
+            <div className="mb-2 flex items-center gap-1.5 text-foreground">
+              <Users className="h-3.5 w-3.5 text-primary" />
+              <span className="text-xs font-semibold">Players</span>
+            </div>
+            <div className="flex items-center justify-center gap-3">
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setPlayerCount(Math.max(2, playerCount - 1))} disabled={playerCount <= 2}>
+                <Minus className="h-4 w-4" />
+              </Button>
+              <span className="w-8 text-center font-display text-2xl font-bold text-primary">{playerCount}</span>
+              <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setPlayerCount(Math.min(15, playerCount + 1))} disabled={playerCount >= 15}>
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center justify-center gap-4">
-            <Button variant="outline" size="icon" onClick={() => setPlayerCount(Math.max(2, playerCount - 1))} disabled={playerCount <= 2}>
-              <Minus className="h-4 w-4" />
-            </Button>
-            <span className="font-display text-4xl font-bold text-primary">{playerCount}</span>
-            <Button variant="outline" size="icon" onClick={() => setPlayerCount(Math.min(15, playerCount + 1))} disabled={playerCount >= 15}>
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
 
-        {/* Cards per turn */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="mb-3 flex items-center gap-2 text-foreground">
-            <Layers className="h-4 w-4 text-primary" />
-            <span className="text-sm font-semibold">Cards per turn</span>
-          </div>
-          <div className="flex items-center justify-center gap-3">
-            {[1, 2, 3].map((n) => (
-              <button
-                key={n}
-                onClick={() => setCardsPerTurn(n)}
-                className={`h-10 w-10 rounded-lg text-sm font-bold transition-all ${
-                  cardsPerTurn === n
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-                }`}
-              >
-                {n}
-              </button>
-            ))}
+          <div className="rounded-xl border border-border bg-card p-3">
+            <div className="mb-2 flex items-center gap-1.5 text-foreground">
+              <Layers className="h-3.5 w-3.5 text-primary" />
+              <span className="text-xs font-semibold">Cards per turn</span>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              {[1, 2, 3].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => setCardsPerTurn(n)}
+                  className={`h-8 w-8 rounded-lg text-sm font-bold transition-all ${
+                    cardsPerTurn === n
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         {/* Player names */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <p className="mb-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="rounded-xl border border-border bg-card p-3">
+          <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             Player names
           </p>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5">
             {Array.from({ length: playerCount }).map((_, i) => (
               <Input
                 key={i}
                 placeholder={`Player ${i + 1}`}
                 value={names[i]}
                 onChange={(e) => updateName(i, e.target.value)}
-                className="text-sm"
+                className="h-9 text-sm"
               />
             ))}
           </div>
         </div>
 
         {/* Extensions */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <p className="mb-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="rounded-xl border border-border bg-card p-3">
+          <p className="mb-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
             Card packs
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5">
             {ALL_EXTENSIONS.map((ext) => (
               <button
                 key={ext}
@@ -156,25 +157,23 @@ export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initia
         </div>
 
         {/* Custom cards */}
-        <div className="rounded-xl border border-border bg-card p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+        <div className="rounded-xl border border-border bg-card p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
               Custom cards ({customCards.length})
             </p>
             <CustomCardDialog
               trigger={
-                <Button variant="ghost" size="sm" className="gap-1 text-xs text-primary">
+                <Button variant="ghost" size="sm" className="h-7 gap-1 px-2 text-xs text-primary">
                   <PlusCircle className="h-3.5 w-3.5" /> Add card
                 </Button>
               }
             />
           </div>
-          {customCards.length === 0 ? (
-            <p className="text-xs text-muted-foreground/60">No custom cards yet. They also live in the Cards tab.</p>
-          ) : (
-            <div className="space-y-1.5 max-h-40 overflow-y-auto">
+          {customCards.length > 0 && (
+            <div className="mt-2 max-h-32 space-y-1.5 overflow-y-auto">
               {customCards.map((c, i) => (
-                <div key={i} className="flex items-center justify-between rounded-lg bg-secondary px-3 py-2">
+                <div key={i} className="flex items-center justify-between rounded-lg bg-secondary px-3 py-1.5">
                   <div className="min-w-0 flex-1">
                     <span className="text-xs font-bold text-foreground">{c.name}</span>
                     <span className="ml-2 text-[10px] text-muted-foreground">{c.type} • {c.extension}</span>
@@ -192,7 +191,7 @@ export function PlayerSetup({ onStart, initialPlayers, initialExtensions, initia
         <Button
           onClick={handleStart}
           disabled={deckTooSmall}
-          className="w-full gap-2 py-6 font-display text-xl font-bold tracking-wide"
+          className="w-full gap-2 py-6 font-display text-lg font-bold tracking-wide"
         >
           <Play className="h-5 w-5" />
           START GAME
