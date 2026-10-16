@@ -65,21 +65,21 @@ function outlineSvg(canvas, offset, size, visible) {
 // much squarer than Samsung's mask, so they get their own outline.
 const iosOutline = Buffer.from(
   `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">` +
-    `<rect x="0" y="0" width="1024" height="1024" rx="229" fill="none" stroke="${INK}" stroke-width="36"/></svg>`,
+    `<rect x="0" y="0" width="1024" height="1024" rx="229" fill="none" stroke="${INK}" stroke-width="24"/></svg>`,
 );
 for (const file of ["assets/icon.png", "assets/icon-only.png"]) {
   await sharp(logo).resize(1024, 1024).composite([{ input: iosOutline }]).png().toFile(file);
   console.log("wrote", file);
 }
 
-// Android adaptive icon: launchers show the middle 72/108 of the layer, cut to
-// their own shape. The art is scaled a little over a cream layer, and the
-// outline traces that visible area (exact on Samsung; circle launchers like
-// Pixel's clip its corners).
-const visible = Math.round((1024 * 72) / 108);
-const inner = await sharp(logo).resize(840, 840).png().toBuffer();
-await sharp({ create: { width: 1024, height: 1024, channels: 4, background: { ...LOGO_CREAM, alpha: 0 } } })
-  .composite([{ input: inner, gravity: "centre" }, { input: outlineSvg(1024, (1024 - visible) / 2, visible, 13) }])
+// Android adaptive icon: @capacitor/assets wraps this layer in a 16.7% inset,
+// so the whole 1024 image maps onto the visible icon area, which the launcher
+// then cuts to its shape. The art fills it edge to edge and the outline traces
+// Samsung's mask along the very edge (circle launchers like Pixel's clip its
+// corners).
+await sharp(logo)
+  .resize(1024, 1024)
+  .composite([{ input: outlineSvg(1024, 0, 1024, 10) }])
   .png()
   .toFile("assets/icon-foreground.png");
 await sharp({ create: { width: 1024, height: 1024, channels: 4, background: { ...LOGO_CREAM, alpha: 1 } } })
