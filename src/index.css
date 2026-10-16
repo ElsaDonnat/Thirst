@@ -102,16 +102,24 @@
   }
 
   /* The THIRST wordmark style: chunky amber letters with a thin dark outline
-     and a small dark drop shadow, like a retro label. paint-order puts the
-     outline behind the fill so it doesn't eat into the letters. */
+     and a solid caramel edge underneath, like a cartoon sign with depth.
+     paint-order puts the outline behind the fill so it doesn't eat into the
+     letters. The edge is several small stacked shadows rather than one big
+     offset, so it stays attached to the outline with no gaps. */
   .title-retro {
+    --title-edge: 24 55% 26%;
     font-family: 'Lilita One', 'Fredoka', sans-serif;
     font-weight: 400;
     letter-spacing: 0.03em;
     color: hsl(var(--primary));
-    -webkit-text-stroke: 0.06em hsl(var(--foreground));
+    -webkit-text-stroke: 0.04em hsl(var(--foreground));
     paint-order: stroke fill;
-    text-shadow: 0.06em 0.06em 0 hsl(var(--foreground));
+    text-shadow:
+      0.01em 0.012em 0 hsl(var(--title-edge)),
+      0.02em 0.024em 0 hsl(var(--title-edge)),
+      0.03em 0.036em 0 hsl(var(--title-edge)),
+      0.04em 0.048em 0 hsl(var(--title-edge)),
+      0.045em 0.056em 0 hsl(var(--title-edge));
   }
 
   /* Text the player typed should stay selectable/editable */

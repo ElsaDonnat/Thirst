@@ -38,17 +38,48 @@ async function fullBleedLogo() {
 
 const logo = await fullBleedLogo();
 
-// iOS and legacy Android: the full square, the system rounds the corners
+// A thin dark outline around the icon's edge, in the same ink as the art
+const INK = "#2B1712";
+
+// Samsung One UI's icon mask (Android's config_icon_mask on a 100x100 grid),
+// read from the phone; iOS icons use a very similar rounded square
+const ICON_MASK = "M99,50C99,6.935,77.063,1,50,1C22.935,1,1,6.935,1,50c0,43.063,21.935,49,49,49C77.063,99,99,93.063,99,50z";
+
+/**
+ * The outline traced along the icon mask, placed over a `size` square at
+ * `offset`. The mask cuts away the outer half of the stroke, so `visible` px
+ * of ink remain along the edge.
+ */
+function outlineSvg(canvas, offset, size, visible) {
+  const scale = size / 100;
+  const strokeUnits = (visible * 2) / scale;
+  return Buffer.from(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas}" height="${canvas}">` +
+      `<g transform="translate(${offset} ${offset}) scale(${scale})">` +
+      `<path d="${ICON_MASK}" fill="none" stroke="${INK}" stroke-width="${strokeUnits}"/></g></svg>`,
+  );
+}
+
+// iOS and legacy Android: the full square with the outline along the edge the
+// system rounds off. iOS corners are a rounded rect of about 22.4% radius,
+// much squarer than Samsung's mask, so they get their own outline.
+const iosOutline = Buffer.from(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024">` +
+    `<rect x="0" y="0" width="1024" height="1024" rx="229" fill="none" stroke="${INK}" stroke-width="36"/></svg>`,
+);
 for (const file of ["assets/icon.png", "assets/icon-only.png"]) {
-  await sharp(logo).resize(1024, 1024).png().toFile(file);
+  await sharp(logo).resize(1024, 1024).composite([{ input: iosOutline }]).png().toFile(file);
   console.log("wrote", file);
 }
 
-// Android adaptive icon: launchers show roughly the middle two thirds and may
-// mask it to a circle, so the art is scaled down a little over a cream layer
+// Android adaptive icon: launchers show the middle 72/108 of the layer, cut to
+// their own shape. The art is scaled a little over a cream layer, and the
+// outline traces that visible area (exact on Samsung; circle launchers like
+// Pixel's clip its corners).
+const visible = Math.round((1024 * 72) / 108);
 const inner = await sharp(logo).resize(840, 840).png().toBuffer();
 await sharp({ create: { width: 1024, height: 1024, channels: 4, background: { ...LOGO_CREAM, alpha: 0 } } })
-  .composite([{ input: inner, gravity: "centre" }])
+  .composite([{ input: inner, gravity: "centre" }, { input: outlineSvg(1024, (1024 - visible) / 2, visible, 13) }])
   .png()
   .toFile("assets/icon-foreground.png");
 await sharp({ create: { width: 1024, height: 1024, channels: 4, background: { ...LOGO_CREAM, alpha: 1 } } })

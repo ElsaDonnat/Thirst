@@ -20,7 +20,7 @@ import type { Card } from "@/data/cards";
 import logoUrl from "@/assets/logo.webp";
 
 // Keep in step with package.json / store releases
-const APP_VERSION = "1.5.2";
+const APP_VERSION = "1.5.3";
 
 const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/elsadonnat0";
 
@@ -125,8 +125,8 @@ export function InfoScreen() {
 
       {/* About */}
       <div className="rounded-2xl border border-border bg-card p-5 text-center">
-        <img src={logoUrl} alt="" className="mx-auto mb-2 h-20 w-20 rounded-[22%] shadow-sm" draggable={false} />
-        <p className="font-display text-xl font-medium text-brand">THIRST</p>
+        <img src={logoUrl} alt="" className="mx-auto mb-3 h-20 w-20 rounded-[22%] border-[3px] border-foreground shadow-sm" draggable={false} />
+        <p className="title-retro text-4xl">THIRST</p>
         <p className="mt-0.5 text-sm text-muted-foreground">{t("info.version", { v: APP_VERSION })}</p>
         <p className="mt-3 font-body text-sm leading-relaxed text-muted-foreground">{t("info.about")}</p>
         <p className="mt-2 font-body text-sm font-semibold text-muted-foreground">{t("info.responsible")}</p>
