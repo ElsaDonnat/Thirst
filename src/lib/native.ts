@@ -5,6 +5,18 @@ import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 export const isNative = Capacitor.isNativePlatform();
 
+/**
+ * A screen can claim the Android back button (e.g. to go back a step in the
+ * setup flow). It returns true when it handled the press.
+ */
+let backHandler: (() => boolean) | null = null;
+export function setBackHandler(handler: (() => boolean) | null) {
+  backHandler = handler;
+}
+export function runBackHandler(): boolean {
+  return backHandler?.() ?? false;
+}
+
 /** One-time native setup: status bar styling, then reveal the app. */
 export async function initNative() {
   if (!isNative) return;
@@ -17,12 +29,12 @@ export async function initNative() {
       await StatusBar.setBackgroundColor({ color: "#f4f5f9" });
     }
   } catch {
-    // StatusBar not available (e.g. web) — nothing to do
+    // StatusBar not available (e.g. web): nothing to do
   }
   try {
     await SplashScreen.hide();
   } catch {
-    // SplashScreen not available — nothing to do
+    // SplashScreen not available: nothing to do
   }
 }
 
@@ -32,6 +44,6 @@ export async function tapFeedback() {
   try {
     await Haptics.impact({ style: ImpactStyle.Medium });
   } catch {
-    // Haptics not available — nothing to do
+    // Haptics not available: nothing to do
   }
 }

@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { CustomCardDialog } from "@/components/CustomCardDialog";
 import { ALL_EXTENSIONS, DEFAULT_CARDS, type Card } from "@/data/cards";
 import { useGame } from "@/context/GameContext";
+import { useT } from "@/i18n";
+import { cardText, packLabel, typeLabel } from "@/i18n/cards";
 
 const typeBadgeMap: Record<string, string> = {
   Strike: "bg-card-strike text-white",
@@ -16,31 +18,34 @@ const typeBadgeMap: Record<string, string> = {
 type Filter = "ALL" | (typeof ALL_EXTENSIONS)[number];
 
 function CardRow({ card, onDelete }: { card: Card; onDelete?: () => void }) {
+  const { lang } = useT();
+  const { name, rule } = cardText(card, lang);
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-2xl border border-border bg-card p-4">
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
-          <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${typeBadgeMap[card.type] || "bg-muted text-muted-foreground"}`}>
-            {card.type}
+          <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${typeBadgeMap[card.type] || "bg-muted text-muted-foreground"}`}>
+            {typeLabel(card.type, lang)}
           </span>
-          <h3 className="truncate font-display text-base font-bold text-foreground">{card.name}</h3>
+          <h3 className="truncate font-display text-lg font-bold text-foreground">{name}</h3>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">{card.extension}</span>
+          <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">{packLabel(card.extension, lang)}</span>
           {onDelete && (
-            <button onClick={onDelete} className="text-muted-foreground hover:text-destructive">
+            <button onClick={onDelete} className="p-1 text-muted-foreground hover:text-destructive">
               <Trash2 className="h-4 w-4" />
             </button>
           )}
         </div>
       </div>
-      <p className="font-body text-sm leading-relaxed text-foreground/80 whitespace-pre-line">{card.rule}</p>
+      <p className="font-body text-[15px] leading-relaxed text-foreground/80 whitespace-pre-line">{rule}</p>
     </div>
   );
 }
 
 export function CardsScreen() {
   const { customCards, removeCustomCard } = useGame();
+  const { t, lang } = useT();
   const [filter, setFilter] = useState<Filter>("ALL");
 
   const withOrigin: { card: Card; customIndex: number | null }[] = [
@@ -55,49 +60,50 @@ export function CardsScreen() {
 
   return (
     <div className="mx-auto w-full max-w-lg px-4 pb-24 pt-6">
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-3 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-3xl font-bold text-primary">Cards</h1>
-          <p className="text-xs text-muted-foreground">
-            {filtered.length} card{filtered.length === 1 ? "" : "s"}
-            {filter !== "ALL" ? ` in ${filter}` : ` • ${customCards.length} custom`}
+          <h1 className="font-display text-4xl font-bold text-primary">{t("cards.title")}</h1>
+          <p className="text-sm text-muted-foreground">
+            {t("cards.count", { n: filtered.length })}
+            {filter === "ALL" && customCards.length > 0 ? ` • ${t("cards.custom", { n: customCards.length })}` : ""}
           </p>
         </div>
         <CustomCardDialog
           trigger={
-            <Button size="sm" className="gap-1.5">
-              <PlusCircle className="h-4 w-4" /> New card
+            <Button className="gap-1.5">
+              <PlusCircle className="h-4 w-4" /> {t("cards.new")}
             </Button>
           }
         />
       </div>
 
-      {/* Pack filter */}
-      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
-        {(["ALL", ...ALL_EXTENSIONS] as Filter[]).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-all ${
-              filter === f
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
-            }`}
-          >
-            {f}
-          </button>
-        ))}
+      {/* Pack filter stays pinned under the status bar while the list scrolls */}
+      <div className="sticky top-[var(--safe-top)] z-20 -mx-4 mb-3 bg-background/95 px-4 py-2 backdrop-blur">
+        <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {(["ALL", ...ALL_EXTENSIONS] as Filter[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => {
+                setFilter(f);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold uppercase transition-colors ${
+                filter === f ? "bg-primary text-primary-foreground shadow-sm" : "bg-secondary text-muted-foreground"
+              }`}
+            >
+              {f === "ALL" ? t("cards.all") : packLabel(f, lang)}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Card list */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border p-8 text-center">
-          <p className="text-sm text-muted-foreground">No cards here yet.</p>
+        <div className="rounded-2xl border border-dashed border-border p-8 text-center">
+          <p className="text-base text-muted-foreground">{t("cards.empty")}</p>
           <CustomCardDialog
             trigger={
-              <Button variant="ghost" size="sm" className="mt-2 gap-1 text-primary">
-                <PlusCircle className="h-3.5 w-3.5" /> Create the first one
+              <Button variant="ghost" className="mt-2 gap-1 text-primary">
+                <PlusCircle className="h-4 w-4" /> {t("cards.createFirst")}
               </Button>
             }
           />

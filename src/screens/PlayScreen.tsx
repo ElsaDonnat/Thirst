@@ -1,51 +1,61 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { PlayerSetup } from "@/components/PlayerSetup";
+import { PlayHome } from "@/components/PlayHome";
+import { SetupFlow } from "@/components/SetupFlow";
 import { GameBoard } from "@/components/GameBoard";
+import { GameOver } from "@/components/GameOver";
 import { useGame } from "@/context/GameContext";
-import { tapFeedback } from "@/lib/native";
+import type { Preset } from "@/lib/presets";
 
 export function PlayScreen() {
-  const { state, startGame, pickCard, skipCards, resetGame, settings } = useGame();
-  const feedback = () => {
-    if (settings.haptics) tapFeedback();
-  };
+  const { state, inGame, playAgain, resetGame } = useGame();
+  const [setup, setSetup] = useState<{ initial: Preset; startStep: 1 | 2 } | null>(null);
 
-  return state.phase === "setup" ? (
+  // Once a game starts, coming back to this tab should land on home, not the wizard
+  useEffect(() => {
+    if (inGame) setSetup(null);
+  }, [inGame]);
+
+  /** The last game's players and settings, so a new game starts prefilled */
+  const lastSetup = (): Preset => ({
+    name: "",
+    players: state.players,
+    genders: state.genders,
+    enabledExtensions: state.enabledExtensions.length ? state.enabledExtensions : ["ORIGINAL"],
+    cardsPerTurn: state.cardsPerTurn,
+    maxRounds: state.maxRounds,
+    genderMatch: state.genderMatch,
+    randomOrder: false,
+  });
+
+  const view = inGame && state.phase === "playing" ? "board" : inGame && state.phase === "finished" ? "over" : setup ? "setup" : "home";
+
+  return (
     <motion.div
-      key="setup"
-      initial={{ opacity: 0, x: -24 }}
+      key={view}
+      initial={{ opacity: 0, x: view === "home" ? -24 : 24 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.18 }}
     >
-      <PlayerSetup
-        onStart={(players, extensions, customCards, cardsPerTurn) => {
-          feedback();
-          startGame(players, extensions, customCards, cardsPerTurn);
-        }}
-        initialPlayers={state.players}
-        initialExtensions={state.enabledExtensions}
-        initialCardsPerTurn={state.cardsPerTurn}
-      />
-    </motion.div>
-  ) : (
-    <motion.div
-      key="board"
-      initial={{ opacity: 0, x: 24 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.18 }}
-    >
-      <GameBoard
-        state={state}
-        onPickCard={(i) => {
-          feedback();
-          pickCard(i);
-        }}
-        onSkip={() => {
-          feedback();
-          skipCards();
-        }}
-        onReset={resetGame}
-      />
+      {view === "home" && (
+        <PlayHome
+          onNewGame={() => setSetup({ initial: lastSetup(), startStep: 1 })}
+          onLoadPreset={(preset) => setSetup({ initial: preset, startStep: 2 })}
+        />
+      )}
+      {view === "setup" && setup && <SetupFlow initial={setup.initial} startStep={setup.startStep} onExit={() => setSetup(null)} />}
+      {view === "board" && <GameBoard />}
+      {view === "over" && (
+        <GameOver
+          state={state}
+          onPlayAgain={playAgain}
+          onBackToSetup={() => {
+            const previous = lastSetup();
+            resetGame();
+            setSetup({ initial: previous, startStep: 1 });
+          }}
+        />
+      )}
     </motion.div>
   );
 }

@@ -109,16 +109,21 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'Inter', sans-serif;
-    /* Respect notches and system bars (bottom inset is handled by the tab bar) */
-    padding-top: var(--safe-top);
-    padding-left: var(--safe-left);
-    padding-right: var(--safe-right);
     /* App feel: no text selection, no long-press callout, no tap flash */
     -webkit-user-select: none;
     user-select: none;
     -webkit-touch-callout: none;
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
+  }
+
+  /* Respect notches and system bars (bottom inset is handled by the tab bar).
+     Not on body: Radix dialogs (react-remove-scroll-bar) overwrite body
+     padding while open, which made the page jump under the status bar. */
+  #root {
+    padding-top: var(--safe-top);
+    padding-left: var(--safe-left);
+    padding-right: var(--safe-right);
   }
 
   /* Text the player typed should stay selectable/editable */

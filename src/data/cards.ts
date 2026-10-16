@@ -3,6 +3,10 @@ export interface Card {
   name: string;
   rule: string;
   extension: string;
+  /** Position in DEFAULT_CARDS; custom cards have none */
+  id?: number;
+  /** Indexes of players this dealt card names (set by personalizeCard) */
+  targets?: number[];
 }
 
 export const ALL_EXTENSIONS = [
@@ -17,7 +21,7 @@ export const ALL_EXTENSIONS = [
 
 export type Extension = (typeof ALL_EXTENSIONS)[number];
 
-export const DEFAULT_CARDS: Card[] = [
+const RAW_CARDS: Card[] = [
   { type: "Strike", name: "DRINK!", rule: "Drink 5 sips.", extension: "ORIGINAL" },
   { type: "Strike", name: "DRINK!", rule: "Drink 10 sips.", extension: "ORIGINAL" },
   { type: "Strike", name: "DRINK!", rule: "Have a shot.", extension: "ORIGINAL" },
@@ -131,3 +135,6 @@ export const DEFAULT_CARDS: Card[] = [
   { type: "Event", name: "Quickshot", rule: "Everyone drinks a shot starting at the same time. The last one to finish has to take another one.", extension: "HEAVYDRINKER" },
   { type: "Event", name: "Shit!", rule: "The player who drew this card has to finish their drink.", extension: "HEAVYDRINKER" },
 ];
+
+// The id is the card's position, which is how CARDS_FR lines up with it
+export const DEFAULT_CARDS: Card[] = RAW_CARDS.map((card, id) => ({ ...card, id }));
