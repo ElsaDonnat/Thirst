@@ -9,8 +9,11 @@ export type TokenKind = "random" | "match";
 
 export const TOKEN_LABELS: Record<TokenKind, Record<Lang, string>> = {
   random: { en: "[random player]", fr: "[joueur au hasard]" },
-  match: { en: "[crush]", fr: "[crush]" },
+  match: { en: "[someone they're into]", fr: "[quelqu'un qui lui plaît]" },
 };
+
+// Older label still understood when typed into a card
+const LEGACY_LABELS: Record<TokenKind, string[]> = { random: [], match: ["[crush]"] };
 
 const STORED = /\{(random|match)\}/g;
 
@@ -28,7 +31,7 @@ export function withLabels(rule: string, lang: Lang): string {
 export function fromLabels(text: string): string {
   let out = text;
   for (const kind of Object.keys(TOKEN_LABELS) as TokenKind[]) {
-    for (const label of Object.values(TOKEN_LABELS[kind])) {
+    for (const label of [...Object.values(TOKEN_LABELS[kind]), ...LEGACY_LABELS[kind]]) {
       out = out.split(label).join(`{${kind}}`);
     }
   }

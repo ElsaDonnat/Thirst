@@ -19,7 +19,7 @@ import { typeLabel } from "@/i18n/cards";
 import type { Card } from "@/data/cards";
 
 // Keep in step with package.json / store releases
-const APP_VERSION = "1.3.0";
+const APP_VERSION = "1.3.1";
 
 const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/elsadonnat0";
 

@@ -135,9 +135,11 @@ describe("player targeting", () => {
   });
 
   it("shows readable slot labels and stores them in a language-neutral form", () => {
-    expect(withLabels("Kiss {match}", "en")).toBe("Kiss [crush]");
+    expect(withLabels("Kiss {match}", "en")).toBe("Kiss [someone they're into]");
+    expect(withLabels("{match} boit", "fr")).toBe("[quelqu'un qui lui plaît] boit");
     expect(withLabels("{random} boit", "fr")).toBe("[joueur au hasard] boit");
-    expect(fromLabels("[random player] and [joueur au hasard] toast [crush]")).toBe("{random} and {random} toast {match}");
+    expect(fromLabels("[random player] and [joueur au hasard] toast [someone they're into]")).toBe("{random} and {random} toast {match}");
+    expect(fromLabels("Kiss [crush]")).toBe("Kiss {match}");
   });
 });
 
