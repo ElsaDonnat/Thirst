@@ -1,6 +1,7 @@
 import type { Card } from "@/data/cards";
 import { CARDS_FR, PACK_DESCRIPTIONS, PACK_LABELS_FR, TARGETABLE_FR, TYPE_LABELS_FR } from "@/data/cards.fr";
 import { TARGETABLE } from "@/lib/targeting";
+import { fillTokens, tokensIn, withLabels } from "@/lib/tokens";
 import type { Lang } from "./strings";
 
 export interface CardText {
@@ -17,6 +18,11 @@ export function cardText(card: Card, lang: Lang, players: string[] = []): CardTe
   const base = lang === "fr" && card.id !== undefined ? CARDS_FR[card.id] ?? card : card;
   let rule = base.rule;
   const names = (card.targets ?? []).map((i) => players[i]).filter(Boolean);
+
+  // Custom cards with player slots: names once dealt, readable labels before
+  if (tokensIn(rule).length) {
+    return { name: base.name, rule: names.length ? fillTokens(rule, names) : withLabels(rule, lang), names };
+  }
 
   if (names.length) {
     const entry = TARGETABLE.find((t) => card.rule.includes(t.from));

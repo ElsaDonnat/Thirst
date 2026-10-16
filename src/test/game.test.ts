@@ -5,7 +5,9 @@ import { CARDS_FR, PACK_DESCRIPTIONS, PACK_LABELS_FR, TARGETABLE_FR } from "@/da
 import { ALL_EXTENSIONS } from "@/data/cards";
 import { STRINGS } from "@/i18n/strings";
 import { cardText } from "@/i18n/cards";
-import { personalizeCard, TARGETABLE } from "@/lib/targeting";
+import { isInto, personalizeCard, TARGETABLE, type Likes, type TargetContext } from "@/lib/targeting";
+import { fromLabels, withLabels } from "@/lib/tokens";
+import type { Card } from "@/data/cards";
 import { useGameState } from "@/hooks/useGameState";
 
 describe("French translation", () => {
@@ -56,9 +58,10 @@ describe("French translation", () => {
 describe("player targeting", () => {
   const mates = DEFAULT_CARDS.find((c) => c.name === "Mates")!;
   const massage = DEFAULT_CARDS.find((c) => c.name === "Massage")!;
-  const ctx = {
+  const ctx: TargetContext = {
     players: ["Ana", "Ben", "Cleo", "Dan"],
-    genders: ["f", "m", "f", "m"] as ("m" | "f")[],
+    genders: ["f", "m", "f", "m"],
+    likes: [null, null, null, null],
     targetCounts: [0, 0, 0, 0],
     currentPlayerIndex: 0,
     genderMatch: false,
@@ -86,11 +89,55 @@ describe("player targeting", () => {
     expect(ben).toBeLessThan(cleo / 5);
   });
 
-  it("picks the opposite gender on flirty cards when matching is on", () => {
+  it("prefers someone mutually interested on flirty cards", () => {
+    // Ana likes men; Ben likes women; Dan likes men; so only Ben is mutual
+    const likes: Likes[] = [["m"], ["f"], ["m"], ["m"]];
     for (let i = 0; i < 300; i++) {
-      const card = personalizeCard(massage, { ...ctx, genderMatch: true });
-      if (card.targets) expect(ctx.genders[card.targets[0]]).toBe("m");
+      const card = personalizeCard(massage, { ...ctx, likes, genderMatch: true });
+      if (card.targets) expect(card.targets[0]).toBe(1);
     }
+  });
+
+  it("falls back to someone they're into, then anyone", () => {
+    // Nobody likes Ana back, but Ana likes men: Ben or Dan
+    const oneWay: Likes[] = [["m"], [], [], []];
+    for (let i = 0; i < 200; i++) {
+      const card = personalizeCard(massage, { ...ctx, likes: oneWay, genderMatch: true });
+      if (card.targets) expect([1, 3]).toContain(card.targets[0]);
+    }
+    // Ana likes no one: still picks someone rather than nothing
+    const picks = Array.from({ length: 200 }, () => personalizeCard(massage, { ...ctx, likes: [[], null, null, null], genderMatch: true }));
+    expect(picks.some((c) => c.targets?.length === 1)).toBe(true);
+  });
+
+  it("treats blank details as open to anyone", () => {
+    expect(isInto(0, 1, ["f", null], [null, null])).toBe(true);
+    expect(isInto(0, 1, ["f", "x"], [["m"], null])).toBe(true);
+    expect(isInto(0, 1, ["f", "f"], [["m"], null])).toBe(false);
+    expect(isInto(0, 1, ["f", "m"], [[], null])).toBe(false);
+  });
+
+  it("fills every slot in a custom card with different players", () => {
+    const custom: Card = { type: "Gift", name: "Date", rule: "{random} buys {match} a drink", extension: "CUSTOM" };
+    const likes: Likes[] = [["m"], ["f"], ["m"], ["m"]];
+    for (let i = 0; i < 300; i++) {
+      const card = personalizeCard(custom, { ...ctx, likes, genderMatch: true });
+      expect(card.targets).toHaveLength(2);
+      const [random, match] = card.targets!;
+      expect(random).not.toBe(0);
+      expect(match).not.toBe(0);
+      expect(random).not.toBe(match);
+      // When Ben is free he's the only mutual match for Ana
+      if (random !== 1) expect(match).toBe(1);
+    }
+    const shown = cardText({ ...custom, targets: [2, 1] }, "en", ctx.players);
+    expect(shown.rule).toBe("Cleo buys Ben a drink");
+  });
+
+  it("shows readable slot labels and stores them in a language-neutral form", () => {
+    expect(withLabels("Kiss {match}", "en")).toBe("Kiss [crush]");
+    expect(withLabels("{random} boit", "fr")).toBe("[joueur au hasard] boit");
+    expect(fromLabels("[random player] and [joueur au hasard] toast [crush]")).toBe("{random} and {random} toast {match}");
   });
 });
 
@@ -101,6 +148,7 @@ describe("game flow", () => {
       result.current.startGame({
         players: ["A", "B"],
         genders: [null, null],
+        likes: [null, null],
         enabledExtensions: ["ORIGINAL"],
         customCards: [],
         cardsPerTurn: 3,
@@ -123,6 +171,7 @@ describe("game flow", () => {
       result.current.startGame({
         players: ["A", "B", "C"],
         genders: [null, null, null],
+        likes: [null, null, null],
         enabledExtensions: ["ORIGINAL"],
         customCards: [],
         cardsPerTurn: 2,

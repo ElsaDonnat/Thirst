@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { DEFAULT_CARDS, type Card, type Extension } from "@/data/cards";
-import { personalizeCard, type Gender } from "@/lib/targeting";
+import { personalizeCard, type Gender, type Likes } from "@/lib/targeting";
 
 function shuffle<T>(array: T[]): T[] {
   const a = [...array];
@@ -15,12 +15,14 @@ function shuffle<T>(array: T[]): T[] {
 export interface GameConfig {
   players: string[];
   genders: (Gender | null)[];
+  /** Who each player is into, for flirty matching */
+  likes: Likes[];
   enabledExtensions: Extension[];
   customCards: Card[];
   cardsPerTurn: number;
   /** null means the game goes on until the players stop it */
   maxRounds: number | null;
-  /** Flirty cards that name someone prefer a player of the opposite gender */
+  /** Flirty cards that name someone follow who-likes-who */
   genderMatch: boolean;
 }
 
@@ -52,6 +54,7 @@ const INITIAL_STATE: GameState = {
   phase: "setup",
   players: [],
   genders: [],
+  likes: [],
   currentPlayerIndex: 0,
   deck: [],
   currentCards: [],
@@ -96,11 +99,12 @@ function buildDeck(config: Pick<GameConfig, "customCards" | "enabledExtensions">
 }
 
 /** Deal a hand for `playerIndex`, naming players on some of the cards */
-function deal(cards: Card[], state: Pick<GameState, "players" | "genders" | "targetCounts" | "genderMatch">, playerIndex: number): Card[] {
+function deal(cards: Card[], state: Pick<GameState, "players" | "genders" | "likes" | "targetCounts" | "genderMatch">, playerIndex: number): Card[] {
   return cards.map((card) =>
     personalizeCard(card, {
       players: state.players,
       genders: state.genders,
+      likes: state.likes ?? [],
       targetCounts: state.targetCounts,
       currentPlayerIndex: playerIndex,
       genderMatch: state.genderMatch,
@@ -203,6 +207,7 @@ export function useGameState() {
       ...INITIAL_STATE,
       players: prev.players,
       genders: prev.genders,
+      likes: prev.likes,
       enabledExtensions: prev.enabledExtensions,
       customCards: prev.customCards,
       cardsPerTurn: prev.cardsPerTurn,

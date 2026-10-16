@@ -20,7 +20,9 @@ iPhones can't install apps from a file. For an iPhone friend the options are Tes
 
 - **Play tab**: a home screen with "Continue" for a saved game, "New game", and up to 3 saved presets. A new game is two short steps (packs, then players), with rules like cards per turn and number of rounds behind an Options button.
 - **During a game**: an "It's your turn" screen for each player, cards whose text sizes itself to fill the screen, a focus view when you pick a card (with Undo and Done), a cheers animation when someone takes the sips, a history panel with everyone's sips and cards, and "Undo last turn".
-- **Cards that name players**: some cards pick a player by name. The choice favours people who have been picked less, never picks the player whose turn it is, and for Flirty cards can optionally pick someone of the opposite gender.
+- **Cards that name players**: some cards pick a player by name. The choice favours people who have been picked less and never picks the player whose turn it is.
+- **Who likes who**: when the Flirty pack is on, an optional switch lets you say what each player is (man, woman, neutral) and who they're into (men, women, both, no one). Flirty cards then pick someone the current player is into, ideally someone who's into them too. Anything left blank counts as open to anyone.
+- **Custom cards with logic**: the card creator can drop a [random player] or a [crush] into the text, and the game fills in a name when the card comes up.
 - **Cards tab**: every card by pack, with a pinned pack filter, and your own custom cards.
 - **Info tab**: rules, card types, language, haptics, clear data, and a Buy Me a Coffee link.
 - **Native touches**: offline fonts, notch and status bar handling, no zoom or text selection, Android back button support, haptics, a splash screen, and a game that survives the app being closed.
@@ -54,7 +56,7 @@ cd android
 ./gradlew assembleDebug
 ```
 
-The file appears at `android/app/build/outputs/apk/debug/app-debug.apk`. Rename it to something like `Thirst-1.2.0.apk` before sharing it.
+The file appears at `android/app/build/outputs/apk/debug/app-debug.apk`. Rename it to something like `Thirst-1.3.0.apk` before sharing it.
 
 On Windows the Android build needs a JDK, and Android Studio's own one works: set `JAVA_HOME` to `C:\Program Files\Android\Android Studio\jbr`. `android/local.properties` must point at the Android SDK (Android Studio creates it).
 

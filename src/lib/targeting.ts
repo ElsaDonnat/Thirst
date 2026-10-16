@@ -1,12 +1,15 @@
 import type { Card } from "@/data/cards";
+import { tokensIn } from "@/lib/tokens";
 
-/** "x" is neutral; neutral and unset players can be picked by anyone */
+/** "x" is neutral */
 export type Gender = "m" | "f" | "x";
+/** Who someone is into: null means not set (open to anyone), [] means no one */
+export type Likes = ("m" | "f")[] | null;
 
 /**
  * Cards whose wording can name a specific player instead of letting the
  * reader choose. `to` uses {p} (and {p2} for pairs). `flirty` targets follow
- * the optional gender matching. The French equivalents live in
+ * who-likes-who matching when it's on. The French equivalents live in
  * TARGETABLE_FR, keyed by `from`.
  */
 export const TARGETABLE: { from: string; to: string; flirty?: boolean; pair?: boolean }[] = [
@@ -26,16 +29,19 @@ export const TARGETABLE: { from: string; to: string; flirty?: boolean; pair?: bo
   { from: "Choose two players who will dance for your own pleasure.", to: "{p} and {p2} will dance for your own pleasure.", flirty: true, pair: true },
 ];
 
-// Not every eligible card gets a name, so the game keeps some free choice
+// Not every eligible built-in card gets a name, so the game keeps some free
+// choice. Slots in custom cards are always filled.
 const TARGET_CHANCE = 0.5;
 
 export interface TargetContext {
   players: string[];
   genders: (Gender | null)[];
+  likes: Likes[];
   /** How often each player has already been named by a played card */
   targetCounts: number[];
   /** The player whose turn it is; never targeted */
   currentPlayerIndex: number;
+  /** Whether flirty picks follow who-likes-who */
   genderMatch: boolean;
 }
 
@@ -54,34 +60,60 @@ function pickWeighted(candidates: number[], counts: number[]): number {
   return candidates[candidates.length - 1];
 }
 
-/** Players of the opposite gender to `of`; empty unless `of` is a man or a woman */
-function oppositeOf(of: number, pool: number[], genders: (Gender | null)[]): number[] {
-  const g = genders[of];
-  if (g !== "m" && g !== "f") return [];
-  const opposite = g === "m" ? "f" : "m";
-  return pool.filter((i) => genders[i] === opposite);
+/**
+ * Whether `a` could be into `b`. Anything not set counts as a yes, and a
+ * neutral or unset gender matches anyone who likes someone.
+ */
+export function isInto(a: number, b: number, genders: (Gender | null)[], likes: Likes[]): boolean {
+  const theirLikes = likes[a] ?? null;
+  if (theirLikes === null) return true;
+  if (theirLikes.length === 0) return false;
+  const g = genders[b] ?? null;
+  return g === null || g === "x" || theirLikes.includes(g);
+}
+
+/**
+ * A flirty partner for `of` from `pool`: someone mutually interested if
+ * possible, otherwise someone `of` is into, otherwise anyone.
+ */
+function pickMatch(of: number, pool: number[], ctx: TargetContext): number {
+  if (ctx.genderMatch) {
+    const mutual = pool.filter((j) => isInto(of, j, ctx.genders, ctx.likes) && isInto(j, of, ctx.genders, ctx.likes));
+    if (mutual.length) return pickWeighted(mutual, ctx.targetCounts);
+    const oneWay = pool.filter((j) => isInto(of, j, ctx.genders, ctx.likes));
+    if (oneWay.length) return pickWeighted(oneWay, ctx.targetCounts);
+  }
+  return pickWeighted(pool, ctx.targetCounts);
 }
 
 export function personalizeCard(card: Card, ctx: TargetContext): Card {
-  const entry = TARGETABLE.find((t) => card.rule.includes(t.from));
-  if (!entry || Math.random() > TARGET_CHANCE) return card;
-
   const others = ctx.players.map((_, i) => i).filter((i) => i !== ctx.currentPlayerIndex);
-  if (others.length < (entry.pair ? 2 : 1)) return card;
 
-  const matching = entry.flirty && ctx.genderMatch;
-  let first: number;
-  let second: number | null = null;
-
-  if (entry.pair) {
-    first = pickWeighted(others, ctx.targetCounts);
-    const rest = others.filter((i) => i !== first);
-    const preferred = matching ? oppositeOf(first, rest, ctx.genders) : [];
-    second = pickWeighted(preferred.length ? preferred : rest, ctx.targetCounts);
-  } else {
-    const preferred = matching ? oppositeOf(ctx.currentPlayerIndex, others, ctx.genders) : [];
-    first = pickWeighted(preferred.length ? preferred : others, ctx.targetCounts);
+  // Custom cards: fill every slot, each with a different player while possible
+  const slots = tokensIn(card.rule);
+  if (slots.length) {
+    if (!others.length) return card;
+    const targets: number[] = [];
+    for (const slot of slots) {
+      const unused = others.filter((i) => !targets.includes(i));
+      const pool = unused.length ? unused : others;
+      targets.push(slot === "match" ? pickMatch(ctx.currentPlayerIndex, pool, ctx) : pickWeighted(pool, ctx.targetCounts));
+    }
+    return { ...card, targets };
   }
 
-  return { ...card, targets: second === null ? [first] : [first, second] };
+  const entry = TARGETABLE.find((t) => card.rule.includes(t.from));
+  if (!entry || Math.random() > TARGET_CHANCE) return card;
+  if (others.length < (entry.pair ? 2 : 1)) return card;
+
+  if (entry.pair) {
+    // Two other players paired up: the second is a match for the first
+    const first = pickWeighted(others, ctx.targetCounts);
+    const rest = others.filter((i) => i !== first);
+    const second = entry.flirty ? pickMatch(first, rest, ctx) : pickWeighted(rest, ctx.targetCounts);
+    return { ...card, targets: [first, second] };
+  }
+
+  const first = entry.flirty ? pickMatch(ctx.currentPlayerIndex, others, ctx) : pickWeighted(others, ctx.targetCounts);
+  return { ...card, targets: [first] };
 }

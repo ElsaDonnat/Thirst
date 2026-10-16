@@ -23,7 +23,8 @@ import { packDescription, packLabel } from "@/i18n/cards";
 import { MAX_PRESETS, type Preset } from "@/lib/presets";
 import { setBackHandler, tapFeedback } from "@/lib/native";
 import { useKeyboardOpen } from "@/hooks/useKeyboardOpen";
-import type { Gender } from "@/lib/targeting";
+import type { Gender, Likes } from "@/lib/targeting";
+import { tokensIn } from "@/lib/tokens";
 
 const MAX_PLAYERS = 15;
 const ROUND_OPTIONS: (number | null)[] = [null, 3, 5, 10];
@@ -51,6 +52,28 @@ function Segmented<T>({ options, value, onChange, label }: { options: T[]; value
           {label(o)}
         </button>
       ))}
+    </div>
+  );
+}
+
+function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`h-8 rounded-full px-3 text-xs font-semibold transition-colors ${
+        on ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+function ChipRow({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <span className="w-10 shrink-0 text-xs font-semibold text-muted-foreground">{label}</span>
+      <div className="flex flex-wrap gap-1.5">{children}</div>
     </div>
   );
 }
@@ -84,6 +107,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
   const [draft, setDraft] = useState<Preset>(initial);
   const [names, setNames] = useState<string[]>(() => Array.from({ length: MAX_PLAYERS }, (_, i) => initial.players[i] ?? ""));
   const [genders, setGenders] = useState<(Gender | null)[]>(() => Array.from({ length: MAX_PLAYERS }, (_, i) => initial.genders[i] ?? null));
+  const [likes, setLikes] = useState<Likes[]>(() => Array.from({ length: MAX_PLAYERS }, (_, i) => initial.likes?.[i] ?? null));
   const nameRefs = useRef<(HTMLInputElement | null)[]>([]);
   const keyboardOpen = useKeyboardOpen();
   const [playerCount, setPlayerCount] = useState(Math.min(MAX_PLAYERS, Math.max(2, initial.players.length || 4)));
@@ -104,7 +128,11 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
 
   const update = (patch: Partial<Preset>) => setDraft((d) => ({ ...d, ...patch }));
   const extensions = new Set(draft.enabledExtensions);
-  const flirtyOn = extensions.has("FLIRTY");
+  // Who-likes-who only matters when something in the deck uses it
+  const matchAvailable =
+    extensions.has("FLIRTY") ||
+    customCards.some((c) => extensions.has(c.extension as Extension) && tokensIn(c.rule).includes("match"));
+  const matching = matchAvailable && draft.genderMatch;
 
   const toggleExtension = (ext: Extension) => {
     const next = new Set(extensions);
@@ -122,10 +150,19 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
     update({ enabledExtensions: shuffled(pool).slice(0, count) });
   };
 
-  // Optional, never required: not set, man, woman, neutral, then back
-  const GENDER_CYCLE: (Gender | null)[] = [null, "m", "f", "x"];
-  const cycleGender = (i: number) =>
-    setGenders((prev) => prev.map((g, j) => (j !== i ? g : GENDER_CYCLE[(GENDER_CYCLE.indexOf(g) + 1) % GENDER_CYCLE.length])));
+  // Everything here is optional: tapping a selected button unselects it
+  const toggleGender = (i: number, g: Gender) =>
+    setGenders((prev) => prev.map((cur, j) => (j !== i ? cur : cur === g ? null : g)));
+  const toggleLike = (i: number, like: "m" | "f" | "none") =>
+    setLikes((prev) =>
+      prev.map((cur, j) => {
+        if (j !== i) return cur;
+        if (like === "none") return cur && cur.length === 0 ? null : [];
+        const base = cur ?? [];
+        const next = base.includes(like) ? base.filter((x) => x !== like) : [...base, like];
+        return next.length ? next : null;
+      }),
+    );
 
   /** Enter moves to the next name; on the last one it closes the keyboard */
   const onNameKeyDown = (i: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -144,19 +181,21 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
     ...draft,
     players: names.slice(0, playerCount).map((n, i) => n.trim() || t("setup.playerPlaceholder", { n: i + 1 })),
     genders: genders.slice(0, playerCount),
-    genderMatch: flirtyOn && draft.genderMatch,
+    likes: likes.slice(0, playerCount),
+    genderMatch: matching,
   });
 
   const play = () => {
     if (settings.haptics) tapFeedback();
     const setup = currentSetup();
-    let { players, genders: playerGenders } = setup;
+    let { players, genders: playerGenders, likes: playerLikes } = setup;
     if (setup.randomOrder) {
       const order = shuffled(players.map((_, i) => i));
       players = order.map((i) => players[i]);
       playerGenders = order.map((i) => playerGenders[i]);
+      playerLikes = order.map((i) => playerLikes[i]);
     }
-    startGame({ ...setup, players, genders: playerGenders, customCards });
+    startGame({ ...setup, players, genders: playerGenders, likes: playerLikes, customCards });
   };
 
   const onPlay = () => (state.phase === "playing" ? setConfirmReplaceGame(true) : play());
@@ -250,7 +289,8 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
 
             <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-1">
               {Array.from({ length: playerCount }).map((_, i) => (
-                <div key={i} className="flex items-center gap-2">
+                <div key={i} className={matching ? "rounded-xl border border-border bg-card p-2" : ""}>
+                <div className="flex items-center gap-2">
                   <span className="w-6 shrink-0 text-center font-display text-base font-bold text-muted-foreground">{i + 1}</span>
                   <Input
                     ref={(el) => (nameRefs.current[i] = el)}
@@ -264,14 +304,22 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
                     autoCorrect="off"
                     className="h-12 min-w-0 flex-1 text-base"
                   />
-                  <button
-                    onClick={() => cycleGender(i)}
-                    className={`h-12 w-[5.5rem] shrink-0 rounded-md text-sm font-semibold transition-colors ${
-                      genders[i] ? "bg-primary/15 text-primary" : "bg-secondary text-muted-foreground/70"
-                    }`}
-                  >
-                    {t(genders[i] ? (`gender.${genders[i]}` as const) : "gender.none")}
-                  </button>
+                </div>
+                {matching && (
+                  <div className="mt-2 space-y-1.5 pl-8">
+                    <ChipRow label={t("player.is")}>
+                      {(["m", "f", "x"] as const).map((g) => (
+                        <Chip key={g} on={genders[i] === g} onClick={() => toggleGender(i, g)}>{t(`gender.${g}`)}</Chip>
+                      ))}
+                    </ChipRow>
+                    <ChipRow label={t("player.into")}>
+                      {(["m", "f"] as const).map((g) => (
+                        <Chip key={g} on={!!likes[i]?.includes(g)} onClick={() => toggleLike(i, g)}>{t(`likes.${g}`)}</Chip>
+                      ))}
+                      <Chip on={likes[i]?.length === 0} onClick={() => toggleLike(i, "none")}>{t("likes.none")}</Chip>
+                    </ChipRow>
+                  </div>
+                )}
                 </div>
               ))}
             </div>
@@ -284,7 +332,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
                 checked={draft.randomOrder}
                 onChange={(v) => update({ randomOrder: v })}
               />
-              {flirtyOn && (
+              {matchAvailable && (
                 <ToggleRow
                   icon={<Heart className="h-4 w-4 text-primary" />}
                   label={t("setup.genderMatch")}

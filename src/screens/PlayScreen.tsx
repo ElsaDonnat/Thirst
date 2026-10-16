@@ -21,6 +21,7 @@ export function PlayScreen() {
     name: "",
     players: state.players,
     genders: state.genders,
+    likes: state.likes ?? [],
     enabledExtensions: state.enabledExtensions.length ? state.enabledExtensions : ["ORIGINAL"],
     cardsPerTurn: state.cardsPerTurn,
     maxRounds: state.maxRounds,
