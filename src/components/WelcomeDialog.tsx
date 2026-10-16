@@ -36,20 +36,20 @@ export function WelcomeDialog() {
   return (
     <Dialog open={open} onOpenChange={dismiss}>
       <DialogContent
-        className="max-w-sm overflow-hidden p-0"
+        className="max-w-sm gap-0 p-0"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <div className="bg-background px-6 pb-5 pt-6 text-center">
-          <Mascot bob className="mx-auto h-40 w-auto" />
-          <DialogTitle className="mt-3 font-display text-3xl font-bold text-brand">{t("welcome.title")}</DialogTitle>
+        <div className="px-6 pt-5 text-center">
+          <Mascot bob className="mx-auto h-[min(9rem,18dvh)] w-auto" />
+          <DialogTitle className="title-retro mt-2 text-[2rem] leading-tight">{t("welcome.title")}</DialogTitle>
           <DialogDescription className="mt-1 text-sm text-muted-foreground">{t("welcome.subtitle")}</DialogDescription>
-          <div className="mt-4 flex justify-center">
+          <div className="mt-3 flex justify-center">
             <LanguageSwitch value={settings.language} onChange={setLanguage} />
           </div>
         </div>
 
-        <div className="space-y-4 px-6 pb-6 pt-5">
-          <ol className="space-y-3">
+        <div className="space-y-3 px-6 pb-5 pt-4">
+          <ol className="space-y-2.5">
             {steps.map((step, i) => (
               <li key={i} className="flex gap-3">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-sm font-bold text-brand">

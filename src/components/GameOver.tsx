@@ -29,7 +29,7 @@ export function GameOver({ state, onPlayAgain, onBackToSetup }: GameOverProps) {
         className="text-center"
       >
         <Mascot bob className="mx-auto h-36 w-auto" />
-        <h1 className="mt-3 font-display text-4xl font-bold text-brand">{t("over.title")}</h1>
+        <h1 className="title-retro mt-3 text-5xl">{t("over.title")}</h1>
         <p className="mt-2 text-base text-muted-foreground">
           {t("over.rounds", { n: rounds })}
         </p>

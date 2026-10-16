@@ -227,7 +227,7 @@ export function GameBoard() {
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.25, delay: 0.05 }}
-            className="mt-2 max-w-full break-words px-2 text-center font-display text-7xl font-bold leading-none text-brand"
+            className="title-retro mt-2 max-w-full break-words px-2 text-center text-7xl leading-none"
           >
             {currentPlayer}
           </motion.h2>

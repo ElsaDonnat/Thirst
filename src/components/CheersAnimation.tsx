@@ -79,7 +79,7 @@ export function CheersAnimation({ title, subtitle, details = [], hold = false, h
         initial={{ opacity: 0, scale: 0.6 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.42, duration: 0.25, ease: [0.3, 1.5, 0.6, 1] }}
-        className="mt-6 font-display text-5xl font-bold text-brand"
+        className="title-retro mt-6 text-6xl"
       >
         {title}
       </motion.p>

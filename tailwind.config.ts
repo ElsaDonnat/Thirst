@@ -15,8 +15,10 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Space Grotesk", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        // Fredoka for headings, Nunito for reading; the Lilita One wordmark
+        // style is the .title-retro class in index.css
+        display: ["Fredoka", "sans-serif"],
+        body: ["Nunito", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",

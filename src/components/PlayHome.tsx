@@ -40,7 +40,7 @@ export function PlayHome({ onNewGame, onLoadPreset }: PlayHomeProps) {
         className="flex flex-col items-center text-center"
       >
         <Mascot bob className="h-[26dvh] max-h-60 w-auto" />
-        <h1 className="mt-2 font-display text-6xl font-bold tracking-tight text-brand">THIRST</h1>
+        <h1 className="title-retro mt-2 text-7xl">THIRST</h1>
         <p className="mt-2 max-w-xs text-base text-muted-foreground">{t("home.subtitle")}</p>
       </motion.div>
 

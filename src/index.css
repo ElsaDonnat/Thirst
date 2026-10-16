@@ -83,7 +83,7 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Nunito', sans-serif;
     /* App feel: no text selection, no long-press callout, no tap flash */
     -webkit-user-select: none;
     user-select: none;
@@ -99,6 +99,16 @@
     padding-top: var(--safe-top);
     padding-left: var(--safe-left);
     padding-right: var(--safe-right);
+  }
+
+  /* The THIRST wordmark style: chunky amber letters with a small dark drop
+     shadow, like a retro label */
+  .title-retro {
+    font-family: 'Lilita One', 'Fredoka', sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    color: hsl(var(--primary));
+    text-shadow: 0.055em 0.055em 0 hsl(var(--foreground));
   }
 
   /* Text the player typed should stay selectable/editable */

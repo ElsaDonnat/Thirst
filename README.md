@@ -59,7 +59,7 @@ cd android
 ./gradlew assembleDebug
 ```
 
-The file appears at `android/app/build/outputs/apk/debug/app-debug.apk`. Rename it to something like `Thirst-1.5.0.apk` before sharing it.
+The file appears at `android/app/build/outputs/apk/debug/app-debug.apk`. Rename it to something like `Thirst-1.5.1.apk` before sharing it.
 
 On Windows the Android build needs a JDK, and Android Studio's own one works: set `JAVA_HOME` to `C:\Program Files\Android\Android Studio\jbr`. `android/local.properties` must point at the Android SDK (Android Studio creates it).
 

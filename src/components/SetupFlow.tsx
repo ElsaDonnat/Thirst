@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -15,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Bookmark, Check, Heart, Minus, Play, Plus, Settings2, Shuffle, Sparkles, WineOff } from "lucide-react";
+import { ArrowLeft, Bookmark, Check, Heart, Info, Minus, Play, Plus, Settings2, Shuffle, Sparkles, WineOff } from "lucide-react";
 import { ALL_EXTENSIONS, DEFAULT_CARDS, type Extension } from "@/data/cards";
 import { useGame } from "@/context/GameContext";
 import { useT } from "@/i18n";
@@ -78,17 +79,27 @@ function ChipRow({ label, children }: { label: string; children: React.ReactNode
   );
 }
 
+/** A setting with a switch; its explanation sits behind a small info button */
 function ToggleRow({ icon, label, hint, checked, onChange }: { icon: React.ReactNode; label: string; hint?: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <div className="rounded-xl bg-secondary/60 px-3 py-2.5">
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          {icon}
-          <span className="text-[15px] font-semibold">{label}</span>
-        </div>
-        <Switch checked={checked} onCheckedChange={onChange} />
+    <div className="flex items-center justify-between gap-3 rounded-xl bg-secondary/60 px-3 py-2.5">
+      <div className="flex min-w-0 items-center gap-2">
+        {icon}
+        <span className="truncate text-[15px] font-semibold">{label}</span>
+        {hint && (
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="-m-1.5 shrink-0 p-1.5 text-muted-foreground" aria-label={label}>
+                <Info className="h-4 w-4" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent side="top" className="w-72 text-sm leading-relaxed" onOpenAutoFocus={(e) => e.preventDefault()}>
+              {hint}
+            </PopoverContent>
+          </Popover>
+        )}
       </div>
-      {hint && checked && <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{hint}</p>}
+      <Switch checked={checked} onCheckedChange={onChange} />
     </div>
   );
 }
