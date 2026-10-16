@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { RotateCcw, Settings2, Trophy } from "lucide-react";
+import { RotateCcw, Settings2 } from "lucide-react";
+import { Mascot } from "@/components/Mascot";
 import { SKIP_SIPS, type GameState } from "@/hooks/useGameState";
 import { useT } from "@/i18n";
 
@@ -27,8 +28,8 @@ export function GameOver({ state, onPlayAgain, onBackToSetup }: GameOverProps) {
         transition={{ duration: 0.25 }}
         className="text-center"
       >
-        <Trophy className="mx-auto h-12 w-12 text-primary" />
-        <h1 className="mt-3 font-display text-4xl font-bold text-primary">{t("over.title")}</h1>
+        <Mascot bob className="mx-auto h-36 w-auto" />
+        <h1 className="mt-3 font-display text-4xl font-bold text-brand">{t("over.title")}</h1>
         <p className="mt-2 text-base text-muted-foreground">
           {t("over.rounds", { n: rounds })}
         </p>

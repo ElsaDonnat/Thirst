@@ -12,7 +12,7 @@ const NotFound = () => {
     <div className="flex min-h-screen items-center justify-center bg-muted">
       <div className="text-center">
         <p className="mb-4 text-xl text-muted-foreground">This page doesn't exist.</p>
-        <a href="/" className="text-primary underline hover:text-primary/90">
+        <a href="/" className="text-brand underline hover:text-brand/90">
           Go back to the game
         </a>
       </div>

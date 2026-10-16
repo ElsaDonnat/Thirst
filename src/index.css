@@ -3,51 +3,62 @@
 @tailwind utilities;
 
 @layer base {
+  /* Colours follow the mascot: cream background (#FFFAEF, the same cream as
+     the mascot artwork, so its enclosed background bits blend in), brown ink,
+     beer amber as the accent and a soft pink used sparingly. */
   :root {
-    --background: 220 20% 97%;
-    --foreground: 220 25% 10%;
+    --background: 41 100% 97%;
+    --foreground: 12 41% 12%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card: 45 100% 98.5%;
+    --card-foreground: 12 41% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
+    --popover: 45 100% 98.5%;
+    --popover-foreground: 12 41% 12%;
 
-    --primary: 250 65% 55%;
-    --primary-foreground: 0 0% 100%;
+    /* Beer amber for fills; text on it is brown, not white, for contrast */
+    --primary: 37 89% 60%;
+    --primary-foreground: 12 41% 12%;
 
-    --secondary: 220 15% 92%;
-    --secondary-foreground: 220 25% 10%;
+    /* Deeper amber for accent-coloured text and icons on cream */
+    --brand: 33 94% 34%;
 
-    --muted: 220 15% 94%;
-    --muted-foreground: 220 10% 45%;
+    /* Soft pink, for the rare spot that needs a second accent */
+    --pink: 338 70% 76%;
+    --pink-foreground: 12 41% 12%;
 
-    --accent: 250 65% 55%;
-    --accent-foreground: 0 0% 100%;
+    --secondary: 41 66% 90%;
+    --secondary-foreground: 12 41% 12%;
 
-    --destructive: 0 72% 51%;
+    --muted: 41 55% 92%;
+    --muted-foreground: 22 15% 40%;
+
+    --accent: 37 89% 60%;
+    --accent-foreground: 12 41% 12%;
+
+    --destructive: 4 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 250 65% 55%;
+    --border: 38 40% 85%;
+    --input: 38 40% 85%;
+    --ring: 33 94% 40%;
 
     --radius: 0.75rem;
 
-    --card-strike: 0 72% 51%;
-    --card-gift: 250 65% 55%;
-    --card-event: 35 92% 50%;
-    --card-equip: 160 60% 40%;
-    --card-special: 280 60% 50%;
+    --card-strike: 4 72% 52%;
+    --card-gift: 338 66% 60%;
+    --card-event: 26 90% 52%;
+    --card-equip: 155 48% 37%;
+    --card-special: 268 42% 55%;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 25% 10%;
-    --sidebar-primary: 250 65% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 15% 92%;
-    --sidebar-accent-foreground: 220 25% 10%;
-    --sidebar-border: 220 15% 88%;
-    --sidebar-ring: 250 65% 55%;
+    --sidebar-background: 45 100% 98.5%;
+    --sidebar-foreground: 12 41% 12%;
+    --sidebar-primary: 37 89% 60%;
+    --sidebar-primary-foreground: 12 41% 12%;
+    --sidebar-accent: 41 66% 90%;
+    --sidebar-accent-foreground: 12 41% 12%;
+    --sidebar-border: 38 40% 85%;
+    --sidebar-ring: 33 94% 40%;
 
     /* Safe-area insets (notches, home indicator, status bar).
        Capacitor's SystemBars plugin injects --safe-area-inset-* on Android;
@@ -56,42 +67,6 @@
     --safe-bottom: var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px));
     --safe-left: var(--safe-area-inset-left, env(safe-area-inset-left, 0px));
     --safe-right: var(--safe-area-inset-right, env(safe-area-inset-right, 0px));
-  }
-
-  .dark {
-    --background: 220 20% 8%;
-    --foreground: 220 10% 95%;
-
-    --card: 220 20% 12%;
-    --card-foreground: 220 10% 95%;
-
-    --popover: 220 20% 12%;
-    --popover-foreground: 220 10% 95%;
-
-    --primary: 250 65% 60%;
-    --primary-foreground: 0 0% 100%;
-
-    --secondary: 220 20% 18%;
-    --secondary-foreground: 220 10% 95%;
-
-    --muted: 220 20% 16%;
-    --muted-foreground: 220 10% 55%;
-
-    --accent: 250 65% 60%;
-    --accent-foreground: 0 0% 100%;
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 220 20% 22%;
-    --input: 220 20% 22%;
-    --ring: 250 65% 60%;
-
-    --card-strike: 0 72% 55%;
-    --card-gift: 250 65% 60%;
-    --card-event: 35 92% 55%;
-    --card-equip: 160 60% 45%;
-    --card-special: 280 60% 55%;
   }
 }
 

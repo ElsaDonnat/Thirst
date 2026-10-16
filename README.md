@@ -59,20 +59,23 @@ cd android
 ./gradlew assembleDebug
 ```
 
-The file appears at `android/app/build/outputs/apk/debug/app-debug.apk`. Rename it to something like `Thirst-1.4.1.apk` before sharing it.
+The file appears at `android/app/build/outputs/apk/debug/app-debug.apk`. Rename it to something like `Thirst-1.5.0.apk` before sharing it.
 
 On Windows the Android build needs a JDK, and Android Studio's own one works: set `JAVA_HOME` to `C:\Program Files\Android\Android Studio\jbr`. `android/local.properties` must point at the Android SDK (Android Studio creates it).
 
 This is a debug build, which is fine for friends. It is signed with the debug key stored on the computer that built it, so keep building updates on the same computer, otherwise friends have to uninstall the old version before installing the new one.
 
-## Changing the icon
+## Changing the icon, splash or mascot
 
-Edit the SVG in `assets/make-assets.mjs` (and the matching `LogoMark` in `src/components/Logo.tsx`), then run:
+The icon comes from `assets/logo-source.jpg` (the raised beer mug) and the splash screen and in-app mascot from `assets/mascot-source.jpg`. To swap either one, replace the source image and run:
 
 ```bash
+node assets/make-mascot.mjs assets/mascot-source.jpg
 node assets/make-assets.mjs
 npx capacitor-assets generate --android --ios
 ```
+
+The app's colours live in `src/index.css`: cream background (the same cream as the mascot artwork), beer amber as the accent, a deeper amber for accent-coloured text, and a soft pink used sparingly.
 
 ## Versioning
 

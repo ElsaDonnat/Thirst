@@ -1,42 +1,71 @@
-// Renders the Thirst brand assets (icon + splash sources) from inline SVG.
-// Re-run after design changes: node assets/make-assets.mjs && npx capacitor-assets generate
-// The mark matches LogoMark in src/components/Logo.tsx (drawn on a 100x100 grid).
+// Renders the Thirst icon and splash sources.
+// Re-run after design changes:
+//   node assets/make-assets.mjs && npx capacitor-assets generate --android --ios
+// Icon: the raised beer mug artwork (assets/logo-source.jpg).
+// Splash: the mascot (src/assets/mascot.webp) on the app's cream.
 import sharp from "sharp";
 
-const GRADIENT = `
-  <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#6D4FE3"/>
-      <stop offset="1" stop-color="#4527BD"/>
-    </linearGradient>
-  </defs>`;
+const CREAM = "#FFFAEF";
+const LOGO_CREAM = { r: 254, g: 248, b: 236 };
 
-const MARK = `
-  <path d="M50 10 C50 10 41.5 22.5 41.5 27.5 a8.5 8.5 0 0 0 17 0 C58.5 22.5 50 10 50 10 Z" fill="#fff"/>
-  <ellipse cx="50" cy="62" rx="27" ry="19" fill="#24106B" stroke="#fff" stroke-width="6"/>
-  <path d="M36 74 Q36 65 50 65 Q64 65 64 74 V79 A14 14 0 0 1 36 79 Z" fill="#FF6F9C"/>
-  <path d="M50 70 v11" stroke="#D9487A" stroke-width="2.5" stroke-linecap="round"/>`;
-
-function svg(size, content) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">${GRADIENT}${content}</svg>`;
+/**
+ * The logo artwork comes with its own rounded corners on white. Phones apply
+ * their own icon mask, so the art has to fill the square: the white corners
+ * are flood-filled with the artwork's cream.
+ */
+async function fullBleedLogo() {
+  const { data, info } = await sharp("assets/logo-source.jpg").removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  const { width, height, channels } = info;
+  const isWhite = (i) => data[i] >= 246 && data[i + 1] >= 246 && data[i + 2] >= 246;
+  const seen = new Uint8Array(width * height);
+  const stack = [0, 0, width - 1, 0, 0, height - 1, width - 1, height - 1];
+  while (stack.length) {
+    const y = stack.pop();
+    const x = stack.pop();
+    if (x < 0 || y < 0 || x >= width || y >= height) continue;
+    const k = y * width + x;
+    if (seen[k]) continue;
+    seen[k] = 1;
+    const i = k * channels;
+    if (!isWhite(i)) continue;
+    data[i] = LOGO_CREAM.r;
+    data[i + 1] = LOGO_CREAM.g;
+    data[i + 2] = LOGO_CREAM.b;
+    stack.push(x + 1, y, x - 1, y, x, y + 1, x, y - 1);
+  }
+  return sharp(data, { raw: { width, height, channels } }).png().toBuffer();
 }
 
-const fill = (size) => `<rect width="${size}" height="${size}" fill="url(#bg)"/>`;
-// Place the 100-unit mark centred, `span` px wide
-const markAt = (center, span) =>
-  `<g transform="translate(${center - span / 2} ${center - span / 2}) scale(${span / 100})">${MARK}</g>`;
+const logo = await fullBleedLogo();
 
-const outputs = {
-  "assets/icon.png": svg(1024, fill(1024) + markAt(512, 800)),
-  "assets/icon-only.png": svg(1024, fill(1024) + markAt(512, 800)),
-  // Adaptive icon: mark kept inside the ~62% safe zone, transparent background
-  "assets/icon-foreground.png": svg(1024, markAt(512, 600)),
-  "assets/icon-background.png": svg(1024, fill(1024)),
-  "assets/splash.png": svg(2732, fill(2732) + markAt(1366, 900)),
-  "assets/splash-dark.png": svg(2732, fill(2732) + markAt(1366, 900)),
-};
+// iOS and legacy Android: the full square, the system rounds the corners
+for (const file of ["assets/icon.png", "assets/icon-only.png"]) {
+  await sharp(logo).resize(1024, 1024).png().toFile(file);
+  console.log("wrote", file);
+}
 
-for (const [file, content] of Object.entries(outputs)) {
-  await sharp(Buffer.from(content)).png().toFile(file);
+// Android adaptive icon: launchers show roughly the middle two thirds and may
+// mask it to a circle, so the art is scaled down a little over a cream layer
+const inner = await sharp(logo).resize(840, 840).png().toBuffer();
+await sharp({ create: { width: 1024, height: 1024, channels: 4, background: { ...LOGO_CREAM, alpha: 0 } } })
+  .composite([{ input: inner, gravity: "centre" }])
+  .png()
+  .toFile("assets/icon-foreground.png");
+await sharp({ create: { width: 1024, height: 1024, channels: 4, background: { ...LOGO_CREAM, alpha: 1 } } })
+  .png()
+  .toFile("assets/icon-background.png");
+console.log("wrote assets/icon-foreground.png, assets/icon-background.png");
+
+// The same art for use inside the app
+await sharp(logo).resize(384, 384).webp({ quality: 88 }).toFile("src/assets/logo.webp");
+console.log("wrote src/assets/logo.webp");
+
+// Splash: the mascot centred on cream, about 40% of the screen height
+const mascot = await sharp("src/assets/mascot.webp").resize({ height: 1100 }).png().toBuffer();
+for (const file of ["assets/splash.png", "assets/splash-dark.png"]) {
+  await sharp({ create: { width: 2732, height: 2732, channels: 4, background: CREAM } })
+    .composite([{ input: mascot, gravity: "centre" }])
+    .png()
+    .toFile(file);
   console.log("wrote", file);
 }

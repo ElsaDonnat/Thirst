@@ -45,7 +45,7 @@ export function HistorySheet({ state, open, onOpenChange }: HistorySheetProps) {
                 <span className="flex shrink-0 items-center gap-3 text-sm text-muted-foreground">
                   <span className="flex items-center gap-1"><Layers className="h-4 w-4" />{t("history.cards", { n: p.cards })}</span>
                   {p.forfeits > 0 && (
-                    <span className="flex items-center gap-1 font-semibold text-primary"><Zap className="h-4 w-4" />{t("history.forfeits", { n: p.forfeits })}</span>
+                    <span className="flex items-center gap-1 font-semibold text-brand"><Zap className="h-4 w-4" />{t("history.forfeits", { n: p.forfeits })}</span>
                   )}
                   {(p.sips > 0 || p.forfeits === 0) && (
                     <span className="flex items-center gap-1 font-semibold text-destructive"><Beer className="h-4 w-4" />{t("over.sips", { n: p.sips })}</span>
@@ -61,7 +61,7 @@ export function HistorySheet({ state, open, onOpenChange }: HistorySheetProps) {
               <div className="space-y-1">
                 {links.map((l, i) => (
                   <p key={i} className="flex items-center gap-2 text-[15px]">
-                    <Link2 className="h-4 w-4 shrink-0 text-primary" />
+                    <Link2 className="h-4 w-4 shrink-0 text-brand" />
                     {l.kind === "mates"
                       ? t("history.mates", { a: state.players[l.from], b: state.players[l.to] })
                       : t("history.buddy", { to: state.players[l.to], from: state.players[l.from] })}

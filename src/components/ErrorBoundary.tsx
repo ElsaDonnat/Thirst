@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.hasError) {
       return (
         <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
-          <h1 className="font-display text-3xl font-bold text-primary">{text("error.title")}</h1>
+          <h1 className="font-display text-3xl font-bold text-brand">{text("error.title")}</h1>
           <p className="text-base text-muted-foreground">{text("error.body")}</p>
           <Button onClick={() => window.location.reload()}>{text("error.restart")}</Button>
         </div>

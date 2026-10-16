@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Bookmark, Play, Plus, X } from "lucide-react";
-import { LogoTile } from "@/components/Logo";
+import { Mascot } from "@/components/Mascot";
 import { useGame } from "@/context/GameContext";
 import { useT } from "@/i18n";
 import { packLabel } from "@/i18n/cards";
@@ -39,15 +39,15 @@ export function PlayHome({ onNewGame, onLoadPreset }: PlayHomeProps) {
         transition={{ duration: 0.25 }}
         className="flex flex-col items-center text-center"
       >
-        <LogoTile className="h-24 w-24" />
-        <h1 className="mt-4 font-display text-6xl font-bold tracking-tight text-primary">THIRST</h1>
+        <Mascot bob className="h-[26dvh] max-h-60 w-auto" />
+        <h1 className="mt-2 font-display text-6xl font-bold tracking-tight text-brand">THIRST</h1>
         <p className="mt-2 max-w-xs text-base text-muted-foreground">{t("home.subtitle")}</p>
       </motion.div>
 
       <div className="mt-8 space-y-3">
         {inProgress && (
           <div className="rounded-2xl border-2 border-primary bg-primary/10 p-4">
-            <p className="font-display text-lg font-bold text-primary">{t("setup.resumeTitle")}</p>
+            <p className="font-display text-lg font-bold text-brand">{t("setup.resumeTitle")}</p>
             <p className="text-[15px] text-foreground/80">
               {t("setup.resumeDetail", { round: state.round, player: state.players[state.currentPlayerIndex] })}
             </p>
@@ -80,7 +80,7 @@ export function PlayHome({ onNewGame, onLoadPreset }: PlayHomeProps) {
                     onClick={() => onLoadPreset(p)}
                     className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 text-left active:bg-secondary"
                   >
-                    <Bookmark className="h-5 w-5 shrink-0 fill-primary/20 text-primary" />
+                    <Bookmark className="h-5 w-5 shrink-0 fill-primary/20 text-brand" />
                     <div className="min-w-0">
                       <p className="truncate text-base font-bold">{p.name}</p>
                       <p className="truncate text-xs text-muted-foreground">

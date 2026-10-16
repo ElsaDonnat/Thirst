@@ -286,7 +286,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
             <div className="mb-3 mt-2 flex items-end justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("wizard.step", { n: 1 })}</p>
-                <h1 className="font-display text-3xl font-bold text-primary">{t("setup.packsTitle")}</h1>
+                <h1 className="font-display text-3xl font-bold text-brand">{t("setup.packsTitle")}</h1>
               </div>
               <Button variant="outline" size="sm" className="h-9 shrink-0 gap-1.5" onClick={surpriseMe}>
                 <Shuffle className="h-4 w-4" /> {t("wizard.surprise")}
@@ -303,8 +303,8 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
                       on ? "border-primary bg-primary/10" : "border-border bg-card"
                     }`}
                   >
-                    {on && <Check className="absolute right-2 top-2 h-4 w-4 text-primary" />}
-                    <span className={`block pr-5 text-[15px] font-bold uppercase tracking-wide ${on ? "text-primary" : "text-foreground"}`}>
+                    {on && <Check className="absolute right-2 top-2 h-4 w-4 text-brand" />}
+                    <span className={`block pr-5 text-[15px] font-bold uppercase tracking-wide ${on ? "text-brand" : "text-foreground"}`}>
                       {packLabel(ext, lang)}
                     </span>
                     <span className="mt-0.5 block text-xs leading-snug text-muted-foreground">{packDescription(ext, lang)}</span>
@@ -321,13 +321,13 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
             <div className={`mb-3 mt-2 items-end justify-between gap-2 ${typing ? "hidden" : "flex"}`}>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("wizard.step", { n: 2 })}</p>
-                <h1 className="font-display text-3xl font-bold text-primary">{t("setup.playersTitle")}</h1>
+                <h1 className="font-display text-3xl font-bold text-brand">{t("setup.playersTitle")}</h1>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setPlayerCount(Math.max(2, playerCount - 1))} disabled={playerCount <= 2}>
                   <Minus className="h-4 w-4" />
                 </Button>
-                <span className="w-7 text-center font-display text-2xl font-bold text-primary">{playerCount}</span>
+                <span className="w-7 text-center font-display text-2xl font-bold text-brand">{playerCount}</span>
                 <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setPlayerCount(Math.min(MAX_PLAYERS, playerCount + 1))} disabled={playerCount >= MAX_PLAYERS}>
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -404,7 +404,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
 
             <div className={`mt-3 space-y-2 ${typing ? "hidden" : ""}`}>
               <ToggleRow
-                icon={<Shuffle className="h-4 w-4 text-primary" />}
+                icon={<Shuffle className="h-4 w-4 text-brand" />}
                 label={t("wizard.randomOrder")}
                 hint={t("wizard.randomOrderHint")}
                 checked={draft.randomOrder}
@@ -412,7 +412,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
               />
               {matchAvailable && (
                 <ToggleRow
-                  icon={<Heart className="h-4 w-4 text-primary" />}
+                  icon={<Heart className="h-4 w-4 text-brand" />}
                   label={t("setup.genderMatch")}
                   hint={t("setup.genderMatchHint")}
                   checked={draft.genderMatch}
@@ -458,7 +458,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
             </div>
             <div className="rounded-xl bg-secondary/60 p-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <Sparkles className="h-4 w-4 text-brand" />
                 <span className="text-[15px] font-semibold">{t("setup.customCards", { n: customCards.length })}</span>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("options.customHint")}</p>
@@ -490,7 +490,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
                   key={i}
                   onClick={() => setReplaceSlot(i)}
                   className={`flex w-full items-center justify-between rounded-lg border-2 px-3 py-2 text-left text-sm font-semibold ${
-                    replaceSlot === i ? "border-primary bg-primary/10 text-primary" : "border-border"
+                    replaceSlot === i ? "border-primary bg-primary/10 text-brand" : "border-border"
                   }`}
                 >
                   {p.name}

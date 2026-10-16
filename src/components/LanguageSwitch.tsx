@@ -18,7 +18,7 @@ export function LanguageSwitch({ value, onChange, inverted = false }: { value: L
             className={`rounded-full px-4 py-1.5 text-sm font-semibold transition-colors ${
               active
                 ? inverted
-                  ? "bg-white text-primary"
+                  ? "bg-white text-brand"
                   : "bg-primary text-primary-foreground"
                 : inverted
                   ? "text-white/80"

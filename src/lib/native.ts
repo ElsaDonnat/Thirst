@@ -26,7 +26,7 @@ export async function initNative() {
     if (Capacitor.getPlatform() === "android") {
       // No-op on Android 15+ enforced edge-to-edge; there the CSS status-bar
       // scrim in index.css covers the inset instead
-      await StatusBar.setBackgroundColor({ color: "#f4f5f9" });
+      await StatusBar.setBackgroundColor({ color: "#FFFAEF" });
     }
   } catch {
     // StatusBar not available (e.g. web): nothing to do

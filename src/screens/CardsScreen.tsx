@@ -62,7 +62,7 @@ export function CardsScreen() {
     <div className="mx-auto w-full max-w-lg px-4 pb-24 pt-6">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-4xl font-bold text-primary">{t("cards.title")}</h1>
+          <h1 className="font-display text-4xl font-bold text-brand">{t("cards.title")}</h1>
           <p className="text-sm text-muted-foreground">
             {t("cards.count", { n: filtered.length })}
             {filter === "ALL" && customCards.length > 0 ? ` • ${t("cards.custom", { n: customCards.length })}` : ""}
@@ -102,7 +102,7 @@ export function CardsScreen() {
           <p className="text-base text-muted-foreground">{t("cards.empty")}</p>
           <CustomCardDialog
             trigger={
-              <Button variant="ghost" className="mt-2 gap-1 text-primary">
+              <Button variant="ghost" className="mt-2 gap-1 text-brand">
                 <PlusCircle className="h-4 w-4" /> {t("cards.createFirst")}
               </Button>
             }

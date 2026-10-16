@@ -31,7 +31,7 @@ export function TabBar({ tab, onChange }: { tab: TabId; onChange: (tab: TabId) =
             key={id}
             onClick={() => onChange(id)}
             className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-xs font-semibold transition-colors ${
-              tab === id ? "text-primary" : "text-muted-foreground"
+              tab === id ? "text-brand" : "text-muted-foreground"
             }`}
           >
             {tab === id && (

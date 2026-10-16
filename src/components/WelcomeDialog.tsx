@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { LogoMark } from "@/components/Logo";
+import { Mascot } from "@/components/Mascot";
 import { useGame } from "@/context/GameContext";
 import { RichText, useT } from "@/i18n";
 import { LanguageSwitch } from "@/components/LanguageSwitch";
@@ -36,15 +36,15 @@ export function WelcomeDialog() {
   return (
     <Dialog open={open} onOpenChange={dismiss}>
       <DialogContent
-        className="max-w-sm overflow-hidden p-0 [&>button]:text-white"
+        className="max-w-sm overflow-hidden p-0"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
-        <div className="bg-gradient-to-br from-[#6D4FE3] to-[#4527BD] px-6 pb-6 pt-8 text-center text-white">
-          <LogoMark className="mx-auto h-24 w-24" />
-          <DialogTitle className="mt-4 font-display text-3xl font-bold">{t("welcome.title")}</DialogTitle>
-          <DialogDescription className="mt-1 text-sm text-white/80">{t("welcome.subtitle")}</DialogDescription>
+        <div className="bg-background px-6 pb-5 pt-6 text-center">
+          <Mascot bob className="mx-auto h-40 w-auto" />
+          <DialogTitle className="mt-3 font-display text-3xl font-bold text-brand">{t("welcome.title")}</DialogTitle>
+          <DialogDescription className="mt-1 text-sm text-muted-foreground">{t("welcome.subtitle")}</DialogDescription>
           <div className="mt-4 flex justify-center">
-            <LanguageSwitch value={settings.language} onChange={setLanguage} inverted />
+            <LanguageSwitch value={settings.language} onChange={setLanguage} />
           </div>
         </div>
 
@@ -52,7 +52,7 @@ export function WelcomeDialog() {
           <ol className="space-y-3">
             {steps.map((step, i) => (
               <li key={i} className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-sm font-bold text-primary">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-sm font-bold text-brand">
                   {i + 1}
                 </span>
                 <span className="font-body text-[15px] leading-snug text-foreground/85">

@@ -45,7 +45,7 @@ function HighlightedRule({ rule, names }: { rule: string; names: string[] }) {
     <>
       {rule.split(pattern).map((part, i) =>
         names.includes(part) ? (
-          <strong key={i} className="font-bold text-primary">{part}</strong>
+          <strong key={i} className="font-bold text-brand">{part}</strong>
         ) : (
           <Fragment key={i}>{part}</Fragment>
         ),
@@ -75,7 +75,7 @@ function CardFace({ card, players, size }: { card: Card; players: string[]; size
       </p>
       {card.forfeit !== undefined && FORFEITS[card.forfeit] && (
         <div className="mt-2 shrink-0 rounded-lg bg-primary/10 px-3 py-1.5">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">{t("game.insteadOfDrinking")}</p>
+          <p className="text-[10px] font-bold uppercase tracking-wider text-brand">{t("game.insteadOfDrinking")}</p>
           <p className={`leading-snug text-foreground/85 ${size === "large" ? "text-base" : "text-xs"}`}>{FORFEITS[card.forfeit][lang]}</p>
         </div>
       )}
@@ -91,22 +91,22 @@ function ForfeitScreen({ player, forfeit, alsoNames, onDone, onCancel }: { playe
       initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.2 }}
-      className="absolute inset-0 z-40 flex flex-col rounded-2xl bg-gradient-to-br from-[#6D4FE3] to-[#4527BD] px-6 pb-5 pt-8 text-white"
+      className="absolute inset-0 z-40 flex flex-col rounded-2xl bg-pink px-6 pb-5 pt-8 text-pink-foreground"
     >
       <div className="flex flex-1 flex-col items-center justify-center text-center">
-        <Zap className="h-12 w-12 fill-white/20" />
-        <p className="mt-3 text-sm font-semibold uppercase tracking-widest text-white/75">{t("game.forfeitTitle")}</p>
+        <Zap className="h-12 w-12 fill-white/40" />
+        <p className="mt-3 text-sm font-semibold uppercase tracking-widest text-foreground/70">{t("game.forfeitTitle")}</p>
         <p className="mt-1 text-lg font-semibold">{t("game.forfeitFor", { player })}</p>
         <p className="mt-5 font-display text-3xl font-bold leading-tight">{FORFEITS[forfeit]?.[lang]}</p>
         {alsoNames.map((name) => (
-          <p key={name} className="mt-3 text-base text-white/85">{t("game.linkedForfeit", { name })}</p>
+          <p key={name} className="mt-3 text-base text-foreground/80">{t("game.linkedForfeit", { name })}</p>
         ))}
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" onClick={onCancel} className="h-auto gap-1.5 border-white/40 bg-transparent px-4 py-5 text-base text-white hover:bg-white/10 hover:text-white">
+        <Button variant="outline" onClick={onCancel} className="h-auto gap-1.5 border-foreground/30 bg-transparent px-4 py-5 text-base text-foreground hover:bg-foreground/5">
           <Undo2 className="h-5 w-5" /> {t("game.undo")}
         </Button>
-        <Button onClick={onDone} className="h-auto flex-1 gap-2 bg-white py-5 font-display text-lg font-bold text-primary hover:bg-white/90">
+        <Button onClick={onDone} className="h-auto flex-1 gap-2 py-5 font-display text-lg font-bold">
           <Check className="h-5 w-5" /> {t("game.done")}
         </Button>
       </div>
@@ -124,7 +124,7 @@ function LinkPicker({ kind, players, current, onPick }: { kind: "buddy" | "mates
       transition={{ duration: 0.18 }}
       className="absolute inset-0 z-40 flex flex-col bg-background px-4 pb-3 pt-6"
     >
-      <h2 className="font-display text-3xl font-bold text-primary">{t("link.title")}</h2>
+      <h2 className="font-display text-3xl font-bold text-brand">{t("link.title")}</h2>
       <p className="mt-1 text-base text-muted-foreground">{t(kind === "buddy" ? "link.buddy" : "link.mates")}</p>
       <div className="mt-4 grid min-h-0 flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto">
         {players.map((name, j) =>
@@ -227,7 +227,7 @@ export function GameBoard() {
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.25, delay: 0.05 }}
-            className="mt-2 max-w-full break-words px-2 text-center font-display text-7xl font-bold leading-none text-primary"
+            className="mt-2 max-w-full break-words px-2 text-center font-display text-7xl font-bold leading-none text-brand"
           >
             {currentPlayer}
           </motion.h2>
@@ -259,9 +259,9 @@ export function GameBoard() {
         <div className="mb-3 flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
-              <h2 className="truncate font-display text-3xl font-bold leading-tight text-primary">{currentPlayer}</h2>
+              <h2 className="truncate font-display text-3xl font-bold leading-tight text-brand">{currentPlayer}</h2>
               {isSober && (
-                <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-brand">
                   <WineOff className="h-3.5 w-3.5" /> {t("game.soberBadge")}
                 </span>
               )}
