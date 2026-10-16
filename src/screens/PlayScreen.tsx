@@ -20,8 +20,10 @@ export function PlayScreen() {
   const lastSetup = (): Preset => ({
     name: "",
     players: state.players,
+    sober: state.sober ?? [],
     genders: state.genders,
     likes: state.likes ?? [],
+    relationships: state.relationships ?? [],
     enabledExtensions: state.enabledExtensions.length ? state.enabledExtensions : ["ORIGINAL"],
     cardsPerTurn: state.cardsPerTurn,
     maxRounds: state.maxRounds,

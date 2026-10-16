@@ -15,7 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { ArrowLeft, Bookmark, Check, Heart, Minus, Play, Plus, Settings2, Shuffle, Sparkles } from "lucide-react";
+import { ArrowLeft, Bookmark, Check, Heart, Minus, Play, Plus, Settings2, Shuffle, Sparkles, WineOff } from "lucide-react";
 import { ALL_EXTENSIONS, DEFAULT_CARDS, type Extension } from "@/data/cards";
 import { useGame } from "@/context/GameContext";
 import { useT } from "@/i18n";
@@ -23,7 +23,7 @@ import { packDescription, packLabel } from "@/i18n/cards";
 import { MAX_PRESETS, type Preset } from "@/lib/presets";
 import { setBackHandler, tapFeedback } from "@/lib/native";
 import { useKeyboardOpen } from "@/hooks/useKeyboardOpen";
-import type { Gender, Likes } from "@/lib/targeting";
+import type { Gender, Likes, Relationship } from "@/lib/targeting";
 import { tokensIn } from "@/lib/tokens";
 
 const MAX_PLAYERS = 15;
@@ -107,7 +107,11 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
   const [draft, setDraft] = useState<Preset>(initial);
   const [names, setNames] = useState<string[]>(() => Array.from({ length: MAX_PLAYERS }, (_, i) => initial.players[i] ?? ""));
   const [genders, setGenders] = useState<(Gender | null)[]>(() => Array.from({ length: MAX_PLAYERS }, (_, i) => initial.genders[i] ?? null));
+  const [sober, setSober] = useState<boolean[]>(() => Array.from({ length: MAX_PLAYERS }, (_, i) => !!initial.sober?.[i]));
   const [likes, setLikes] = useState<Likes[]>(() => Array.from({ length: MAX_PLAYERS }, (_, i) => initial.likes?.[i] ?? null));
+  const [relationships, setRelationships] = useState<Relationship[]>(() =>
+    Array.from({ length: MAX_PLAYERS }, (_, i) => initial.relationships?.[i] ?? null),
+  );
   const nameRefs = useRef<(HTMLInputElement | null)[]>([]);
   const keyboardOpen = useKeyboardOpen();
   const [playerCount, setPlayerCount] = useState(Math.min(MAX_PLAYERS, Math.max(2, initial.players.length || 4)));
@@ -164,6 +168,39 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
       }),
     );
 
+  // Taken on/off. Turning it off releases the partner, who stays marked as
+  // taken (by someone not playing) rather than silently becoming single.
+  const toggleTaken = (i: number) =>
+    setRelationships((prev) => {
+      const next = [...prev];
+      const current = next[i];
+      if (current === null) {
+        next[i] = "away";
+      } else {
+        if (typeof current === "number" && next[current] === i) next[current] = "away";
+        next[i] = null;
+      }
+      return next;
+    });
+
+  // Couples are linked both ways; whoever either of them was with before is
+  // left taken by someone not playing
+  const setPartner = (i: number, partner: Relationship) =>
+    setRelationships((prev) => {
+      const next = [...prev];
+      const release = (who: number) => {
+        const old = next[who];
+        if (typeof old === "number" && next[old] === who) next[old] = "away";
+      };
+      release(i);
+      if (typeof partner === "number") {
+        release(partner);
+        next[partner] = i;
+      }
+      next[i] = partner;
+      return next;
+    });
+
   /** Enter moves to the next name; on the last one it closes the keyboard */
   const onNameKeyDown = (i: number) => (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== "Enter") return;
@@ -180,22 +217,32 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
   const currentSetup = (): Preset => ({
     ...draft,
     players: names.slice(0, playerCount).map((n, i) => n.trim() || t("setup.playerPlaceholder", { n: i + 1 })),
+    sober: sober.slice(0, playerCount),
     genders: genders.slice(0, playerCount),
     likes: likes.slice(0, playerCount),
+    // A partner who was removed from the game counts as not playing
+    relationships: relationships.slice(0, playerCount).map((r) => (typeof r === "number" && r >= playerCount ? "away" : r)),
     genderMatch: matching,
   });
 
   const play = () => {
     if (settings.haptics) tapFeedback();
     const setup = currentSetup();
-    let { players, genders: playerGenders, likes: playerLikes } = setup;
+    let { players, sober: playerSober, genders: playerGenders, likes: playerLikes, relationships: playerRelationships } = setup;
     if (setup.randomOrder) {
       const order = shuffled(players.map((_, i) => i));
+      // Partners point at seat numbers, so they follow everyone to their new seat
+      const newSeat = new Map(order.map((oldSeat, seat) => [oldSeat, seat]));
       players = order.map((i) => players[i]);
+      playerSober = order.map((i) => playerSober[i]);
       playerGenders = order.map((i) => playerGenders[i]);
       playerLikes = order.map((i) => playerLikes[i]);
+      playerRelationships = order.map((i) => {
+        const r = playerRelationships[i];
+        return typeof r === "number" ? newSeat.get(r) ?? "away" : r;
+      });
     }
-    startGame({ ...setup, players, genders: playerGenders, likes: playerLikes, customCards });
+    startGame({ ...setup, players, sober: playerSober, genders: playerGenders, likes: playerLikes, relationships: playerRelationships, customCards });
   };
 
   const onPlay = () => (state.phase === "playing" ? setConfirmReplaceGame(true) : play());
@@ -304,6 +351,15 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
                     autoCorrect="off"
                     className="h-12 min-w-0 flex-1 text-base"
                   />
+                  <button
+                    onClick={() => setSober((prev) => prev.map((s, j) => (j === i ? !s : s)))}
+                    aria-pressed={sober[i]}
+                    className={`flex h-12 shrink-0 items-center gap-1 rounded-md px-2.5 text-xs font-semibold transition-colors ${
+                      sober[i] ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    <WineOff className="h-4 w-4" /> {t("player.sober")}
+                  </button>
                 </div>
                 {matching && (
                   <div className="mt-2 space-y-1.5 pl-8">
@@ -317,6 +373,28 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
                         <Chip key={g} on={!!likes[i]?.includes(g)} onClick={() => toggleLike(i, g)}>{t(`likes.${g}`)}</Chip>
                       ))}
                       <Chip on={likes[i]?.length === 0} onClick={() => toggleLike(i, "none")}>{t("likes.none")}</Chip>
+                    </ChipRow>
+                    <ChipRow label="">
+                      <Chip on={relationships[i] !== null} onClick={() => toggleTaken(i)}>{t("player.taken")}</Chip>
+                      {relationships[i] !== null && (
+                        <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          {t("player.with")}
+                          <select
+                            value={relationships[i] === "away" ? "away" : String(relationships[i])}
+                            onChange={(e) => setPartner(i, e.target.value === "away" ? "away" : Number(e.target.value))}
+                            className="h-8 max-w-[9rem] rounded-full bg-secondary px-2 text-xs font-semibold text-foreground"
+                          >
+                            <option value="away">{t("player.partnerAway")}</option>
+                            {Array.from({ length: playerCount }).map((_, j) =>
+                              j === i ? null : (
+                                <option key={j} value={j}>
+                                  {names[j].trim() || t("setup.playerPlaceholder", { n: j + 1 })}
+                                </option>
+                              ),
+                            )}
+                          </select>
+                        </label>
+                      )}
                     </ChipRow>
                   </div>
                 )}

@@ -5,8 +5,12 @@ export interface Card {
   extension: string;
   /** Position in DEFAULT_CARDS; custom cards have none */
   id?: number;
+  /** Crosses a line for someone in a relationship (kept from taken players) */
+  spicy?: boolean;
   /** Indexes of players this dealt card names (set by personalizeCard) */
   targets?: number[];
+  /** A forfeit to do instead of drinking, attached when dealt to a sober player */
+  forfeit?: number;
 }
 
 export const ALL_EXTENSIONS = [
@@ -32,7 +36,7 @@ const RAW_CARDS: Card[] = [
   { type: "Strike", name: "Penguin", rule: "Tell us two facts or stories about yourself: a true one and a lie. Everybody votes to find the true one. Losers drink 5 and you drink for each person who succeeded.", extension: "ORIGINAL" },
   { type: "Strike", name: "Penguin", rule: "Tell us two facts or stories about yourself: a true one and a lie. Everybody votes to find the true one. Losers drink 5 and you drink for each person who succeeded.", extension: "ORIGINAL" },
   { type: "Strike", name: "GULP!", rule: "Finish your drink!", extension: "ORIGINAL" },
-  { type: "Strike", name: "Mates", rule: "Choose another player to be your mate. When one drinks, the other too.", extension: "ORIGINAL" },
+  { type: "Strike", name: "Mates", rule: "{random} is your mate. When one of you drinks, the other drinks too.", extension: "ORIGINAL" },
   { type: "Strike", name: "Mates", rule: "Choose another player to be your mate. When one drinks, the other too.", extension: "ORIGINAL" },
   { type: "Strike", name: "Bad lover", rule: "Tell us your worst consented sexual experience.", extension: "ORIGINAL" },
   { type: "Strike", name: "Waterfall", rule: "Players all start chugging at the same time. You can only stop drinking if all the people before you stopped drinking. And dude, you're last.", extension: "ORIGINAL" },
@@ -43,37 +47,37 @@ const RAW_CARDS: Card[] = [
   { type: "Strike", name: "The toy", rule: "Stand up and pick an object. Act like a salesman selling a revolutionary sextoy. Continue until someone buys it for 5 sips.", extension: "ORIGINAL" },
   { type: "Strike", name: "Woof", rule: "You have 1 min. to make other players guess a movie using only animal sounds. If someone guesses you can both give out 8 sips. Otherwise drink them.", extension: "ORIGINAL" },
   { type: "Strike", name: "Flirt", rule: "From now on, end all your sentences with \"sexy\".", extension: "ORIGINAL" },
-  { type: "Strike", name: "Peacock", rule: "Do a mating dance to a random player. If they say they are seduced, give away 5 drinks. Otherwise drink them.", extension: "ORIGINAL" },
+  { type: "Strike", name: "Peacock", rule: "Do a mating dance for {match}. If they say they're seduced, give out 5 sips. Otherwise drink them.", extension: "ORIGINAL", spicy: true },
   { type: "Strike", name: "Acrobat", rule: "Do a backward roll or drink a shot.", extension: "ORIGINAL" },
-  { type: "Strike", name: "Lil' bird", rule: "Eat something another player chewed.", extension: "JACKASS" },
-  { type: "Strike", name: "Boardman", rule: "Choose a player who surfs on you.", extension: "JACKASS" },
+  { type: "Strike", name: "Lil' bird", rule: "Eat something {random} has chewed.", extension: "JACKASS" },
+  { type: "Strike", name: "Boardman", rule: "{random} surfs on you.", extension: "JACKASS" },
   { type: "Strike", name: "Sniff", rule: "Drink with your nose or finish your drink.", extension: "JACKASS" },
   { type: "Strike", name: "Dumbfuck", rule: "Drink once, holding your glass with both hands but without bending your arms.", extension: "JACKASS" },
-  { type: "Strike", name: "Llama", rule: "Let another player spit water on your face.", extension: "JACKASS" },
+  { type: "Strike", name: "Llama", rule: "Let {random} spit water on your face.", extension: "JACKASS" },
   { type: "Strike", name: "Charisma", rule: "Designate the player you think has the most charisma. Obey an order from them.", extension: "FLIRTY" },
-  { type: "Strike", name: "Love", rule: "Drink for each player in the room you could sleep with. If you give their names, give 5 sips for each.", extension: "FLIRTY" },
-  { type: "Strike", name: "Love", rule: "Drink for each player in the room you could sleep with. If you give their names, give 5 sips for each.", extension: "FLIRTY" },
+  { type: "Strike", name: "Love", rule: "Drink for each player in the room you could sleep with. If you give their names, give 5 sips for each.", extension: "FLIRTY", spicy: true },
+  { type: "Strike", name: "Love", rule: "Drink for each player in the room you could sleep with. If you give their names, give 5 sips for each.", extension: "FLIRTY", spicy: true },
   { type: "Strike", name: "WTF", rule: "Tell us about the weirdest porn you've ever seen or drink 6.", extension: "FLIRTY" },
   { type: "Strike", name: "Krach", rule: "Say \"1\", the next player can say a greater number or stop. Continue until someone chooses to stop. They drink 5 and the player before them drinks the number they said.", extension: "HEAVYDRINKER" },
-  { type: "Strike", name: "Gambler", rule: "Flip a coin. Heads: you drink a shot. Tails: Choose a player who drinks a shot.", extension: "HEAVYDRINKER" },
+  { type: "Strike", name: "Gambler", rule: "Flip a coin. Heads: you drink a shot. Tails: {random} drinks a shot.", extension: "HEAVYDRINKER" },
   { type: "Strike", name: "Clown", rule: "You have one attempt to make at least one other player laugh. If you fail, drink a shot.", extension: "HEAVYDRINKER" },
   { type: "Strike", name: "Voice-over", rule: "Narrate loudly everything people do until it's your turn to play.", extension: "BAR" },
   { type: "Strike", name: "Mute disco", rule: "Start disco dancing without music for 30 seconds. You can give out 5 sips.", extension: "BAR" },
   { type: "Gift", name: "Bang", rule: "Give a shot to the most attractive player.", extension: "ORIGINAL" },
   { type: "Gift", name: "Cupid", rule: "Choose two players who will hold hands for a full round.", extension: "ORIGINAL" },
-  { type: "Gift", name: "No way!?", rule: "Ask a player of your choice a question: \"From all the players, who...?\". They have to answer aloud. Any player who wants to know what the question was has to drink 15.", extension: "ORIGINAL" },
+  { type: "Gift", name: "No way!?", rule: "Ask {random} a question: \"Out of all the players, who...?\". They have to answer out loud. Anyone who wants to know what the question was has to drink 15.", extension: "ORIGINAL" },
   { type: "Gift", name: "No way!?", rule: "Ask a player of your choice a question: \"From all the players, who...?\". They have to answer aloud. Any player who wants to know what the question was has to drink 15.", extension: "ORIGINAL" },
   { type: "Gift", name: "Cheat mode", rule: "Next person has to play twice.", extension: "ORIGINAL" },
   { type: "Gift", name: "ACTION!", rule: "Give 3 dares to the player of your choice. They have to do one.", extension: "ORIGINAL" },
   { type: "Gift", name: "ACTION!", rule: "Give a dare to the player on your left.", extension: "ORIGINAL" },
   { type: "Gift", name: "ACTION!", rule: "Give a dare to the player on your right.", extension: "ORIGINAL" },
-  { type: "Gift", name: "ACTION!", rule: "Give a dare to the player of your choice.", extension: "ORIGINAL" },
+  { type: "Gift", name: "ACTION!", rule: "Give a dare to {random}.", extension: "ORIGINAL" },
   { type: "Gift", name: "VIRUS", rule: "Both your neighbours choose one of their cards and undergo it.", extension: "ORIGINAL" },
   { type: "Gift", name: "Influencer", rule: "From now on, whenever you stand everyone has to stand. Last one drinks.", extension: "ORIGINAL" },
   { type: "Gift", name: "Rule", rule: "Invent a new rule, it has to be fair for everyone.", extension: "ORIGINAL" },
   { type: "Gift", name: "Rule", rule: "Invent a new rule, it has to be fair for everyone.", extension: "ORIGINAL" },
   { type: "Gift", name: "Too pretty", rule: "Designate the most handsome/ prettiest player. Beauty drinks 4.", extension: "ORIGINAL" },
-  { type: "Gift", name: "Buddy", rule: "Choose a player who will drink every time you do.", extension: "ORIGINAL" },
+  { type: "Gift", name: "Buddy", rule: "{random} drinks every time you do.", extension: "ORIGINAL" },
   { type: "Gift", name: "Buddy", rule: "Choose a player who will drink every time you do.", extension: "ORIGINAL" },
   { type: "Gift", name: "Democracy", rule: "Invent a two options question. All players will vote at the same time. Minority drinks 3 sips.", extension: "ORIGINAL" },
   { type: "Gift", name: "Democracy", rule: "Invent a two options question. All players will vote at the same time. Minority drinks 3 sips.", extension: "ORIGINAL" },
@@ -124,17 +128,39 @@ const RAW_CARDS: Card[] = [
   { type: "Strike", name: "No smoking", rule: "You can't smoke for the next hour.", extension: "ORIGINAL" },
   { type: "Strike", name: "Hey mum...", rule: "Let the player who gave you this card write a message to a person of your choosing on your phone. You can't look at it for 15 minutes.", extension: "ORIGINAL" },
   { type: "Strike", name: "Twerk!", rule: "Pretty self-explanatory, do your best.", extension: "ORIGINAL" },
-  { type: "Strike", name: "III", rule: "Tell us with which players you would have a threesome and why.", extension: "FLIRTY" },
-  { type: "Strike", name: "Massage", rule: "Rub the shoulders of a player of your choosing until they are satisfied.", extension: "FLIRTY" },
+  { type: "Strike", name: "III", rule: "Tell us with which players you would have a threesome and why.", extension: "FLIRTY", spicy: true },
+  { type: "Strike", name: "Massage", rule: "Rub {match}'s shoulders until they're satisfied.", extension: "FLIRTY", spicy: true },
   { type: "Strike", name: "Book lover", rule: "Grab a book and open it on a random page. Read a whole paragraph in the most sensual way possible.", extension: "FLIRTY" },
-  { type: "Strike", name: "Don Juan", rule: "Give a napkin with your number to a stranger if possible or drink 15 sips.", extension: "BAR" },
+  { type: "Strike", name: "Don Juan", rule: "Give a napkin with your number to a stranger if possible or drink 15 sips.", extension: "BAR", spicy: true },
   { type: "Strike", name: "Selfie", rule: "Take a selfie with the barman. (Or a player of your choosing if you're not playing in a bar)", extension: "BAR" },
   { type: "Strike", name: "Philanthropist", rule: "Buy a stranger a drink or prepare one for another player if you're not playing in a bar.", extension: "BAR" },
   { type: "Equip", name: "Shotgun", rule: "When you drink shots give out the same amount of shots.", extension: "HEAVYDRINKER" },
   { type: "Strike", name: "Stranded", rule: "Lay down on the floor and pretend you're a dolphin stranded on land.", extension: "JACKASS" },
   { type: "Event", name: "Quickshot", rule: "Everyone drinks a shot starting at the same time. The last one to finish has to take another one.", extension: "HEAVYDRINKER" },
   { type: "Event", name: "Shit!", rule: "The player who drew this card has to finish their drink.", extension: "HEAVYDRINKER" },
+  // Cards added in 1.4 (positions must stay after the original 112)
+  { type: "Strike", name: "Lap time", rule: "Sit on {match}'s lap until your next turn.", extension: "FLIRTY", spicy: true },
+  { type: "Strike", name: "Staring contest", rule: "Look {match} in the eyes for 30 seconds without laughing. Whoever cracks first drinks 3 sips.", extension: "FLIRTY" },
+  { type: "Strike", name: "Hairdresser", rule: "Play with {match}'s hair until your next turn, or until they ask you to stop.", extension: "FLIRTY", spicy: true },
+  { type: "Strike", name: "Sweet talk", rule: "Give {match} three honest compliments. If you laugh during one of them, drink 3 sips.", extension: "FLIRTY" },
+  { type: "Strike", name: "Slow dance", rule: "Slow dance with {match} for a whole song while everyone else hums the music.", extension: "FLIRTY", spicy: true },
+  { type: "Strike", name: "Smooth talker", rule: "Try your best pick-up line on {match}. If they smile, give out 5 sips. If they don't, drink them.", extension: "FLIRTY" },
+  { type: "Strike", name: "Poet", rule: "Write a two-line love poem for {match} and read it out loud. {random} gives it a mark out of 10, and you drink the difference.", extension: "FLIRTY" },
+  { type: "Strike", name: "Hand in hand", rule: "Hold hands with {match} until your next turn.", extension: "FLIRTY", spicy: true },
+  { type: "Strike", name: "Hot seat", rule: "{random} asks you one flirty question. Answer honestly or drink 5 sips.", extension: "FLIRTY" },
+  { type: "Strike", name: "Wingman", rule: "{random} has one minute to convince {match} that you're the best catch at this table. If it doesn't work, you and your wingman drink 3 sips each.", extension: "FLIRTY" },
+  { type: "Strike", name: "Snack time", rule: "Feed {match} a snack or a sip of your drink. No hands if you're feeling brave.", extension: "FLIRTY", spicy: true },
+  { type: "Strike", name: "Whisper", rule: "Whisper something nice in {match}'s ear. Nobody else gets to know what you said.", extension: "FLIRTY" },
+  { type: "Gift", name: "Pet name", rule: "Give {match} a cute nickname. Everyone has to use it until the end of the game or drink 2 sips.", extension: "FLIRTY" },
+  { type: "Gift", name: "A toast", rule: "Raise your glass to {random} and say why you're glad they came tonight. You both drink 2 sips.", extension: "ORIGINAL" },
+  { type: "Gift", name: "Bartender", rule: "{random} has to top up your drink, right now.", extension: "ORIGINAL" },
+  { type: "Strike", name: "Rock paper scissors", rule: "Play rock paper scissors against {random}. The loser drinks 4 sips.", extension: "ORIGINAL" },
 ];
 
 // The id is the card's position, which is how CARDS_FR lines up with it
 export const DEFAULT_CARDS: Card[] = RAW_CARDS.map((card, id) => ({ ...card, id }));
+
+export type LinkKind = "buddy" | "mates";
+
+/** Cards that tie two players' drinking together, by card id */
+export const LINK_KIND: Record<number, LinkKind> = { 10: "mates", 11: "mates", 51: "buddy", 52: "buddy" };

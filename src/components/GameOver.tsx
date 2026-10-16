@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { RotateCcw, Settings2, Trophy } from "lucide-react";
-import type { GameState } from "@/hooks/useGameState";
+import { SKIP_SIPS, type GameState } from "@/hooks/useGameState";
 import { useT } from "@/i18n";
 
 interface GameOverProps {
@@ -12,10 +12,11 @@ interface GameOverProps {
 
 export function GameOver({ state, onPlayAgain, onBackToSetup }: GameOverProps) {
   const { t } = useT();
+  // A forfeit weighs the same as the sips it replaced
   const ranking = state.players
-    .map((name, i) => ({ name, sips: state.sips[i] ?? 0 }))
-    .sort((a, b) => b.sips - a.sips);
-  const anySips = ranking.some((p) => p.sips > 0);
+    .map((name, i) => ({ name, sips: state.sips[i] ?? 0, forfeits: state.forfeits?.[i] ?? 0 }))
+    .sort((a, b) => b.sips + b.forfeits * SKIP_SIPS - (a.sips + a.forfeits * SKIP_SIPS));
+  const anySips = ranking.some((p) => p.sips > 0 || p.forfeits > 0);
   const rounds = state.maxRounds ?? state.round;
 
   return (
@@ -50,7 +51,11 @@ export function GameOver({ state, onPlayAgain, onBackToSetup }: GameOverProps) {
                 }`}
               >
                 <span className="font-display text-lg font-bold text-foreground">{p.name}</span>
-                <span className="text-base font-semibold text-muted-foreground">{t("over.sips", { n: p.sips })}</span>
+                <span className="text-base font-semibold text-muted-foreground">
+                  {[p.sips > 0 || p.forfeits === 0 ? t("over.sips", { n: p.sips }) : null, p.forfeits > 0 ? t("history.forfeits", { n: p.forfeits }) : null]
+                    .filter(Boolean)
+                    .join(" • ")}
+                </span>
               </motion.div>
             ))}
           </div>

@@ -1,47 +1,29 @@
 import type { Card } from "@/data/cards";
 import { tokensIn } from "@/lib/tokens";
+import { involvesDrinking } from "@/data/forfeits";
 
 /** "x" is neutral */
 export type Gender = "m" | "f" | "x";
 /** Who someone is into: null means not set (open to anyone), [] means no one */
 export type Likes = ("m" | "f")[] | null;
-
 /**
- * Cards whose wording can name a specific player instead of letting the
- * reader choose. `to` uses {p} (and {p2} for pairs). `flirty` targets follow
- * who-likes-who matching when it's on. The French equivalents live in
- * TARGETABLE_FR, keyed by `from`.
+ * null: single or not set. "away": in a relationship with someone who isn't
+ * playing. A number: in a relationship with that player.
  */
-export const TARGETABLE: { from: string; to: string; flirty?: boolean; pair?: boolean }[] = [
-  { from: "Choose another player to be your mate.", to: "{p} is your mate." },
-  { from: "Choose a player who surfs on you.", to: "{p} surfs on you." },
-  { from: "Eat something another player chewed.", to: "Eat something {p} chewed." },
-  { from: "Let another player spit water on your face.", to: "Let {p} spit water on your face." },
-  { from: "Tails: Choose a player who drinks a shot.", to: "Tails: {p} drinks a shot." },
-  { from: "Choose a player who will drink every time you do.", to: "{p} will drink every time you do." },
-  { from: "Give 3 dares to the player of your choice.", to: "Give 3 dares to {p}." },
-  { from: "Give a dare to the player of your choice.", to: "Give a dare to {p}." },
-  { from: "Ask a player of your choice a question", to: "Ask {p} a question" },
-  { from: "Do a mating dance to a random player.", to: "Do a mating dance for {p}.", flirty: true },
-  { from: "Choose a player who will call you \"master\"", to: "{p} will call you \"master\"", flirty: true },
-  { from: "Rub the shoulders of a player of your choosing", to: "Rub the shoulders of {p}", flirty: true },
-  { from: "Choose two players who will hold hands for a full round.", to: "{p} and {p2} will hold hands for a full round.", flirty: true, pair: true },
-  { from: "Choose two players who will dance for your own pleasure.", to: "{p} and {p2} will dance for your own pleasure.", flirty: true, pair: true },
-];
-
-// Not every eligible built-in card gets a name, so the game keeps some free
-// choice. Slots in custom cards are always filled.
-const TARGET_CHANCE = 0.5;
+export type Relationship = null | "away" | number;
 
 export interface TargetContext {
   players: string[];
+  /** Players who don't drink */
+  sober?: boolean[];
   genders: (Gender | null)[];
   likes: Likes[];
+  relationships: Relationship[];
   /** How often each player has already been named by a played card */
   targetCounts: number[];
   /** The player whose turn it is; never targeted */
   currentPlayerIndex: number;
-  /** Whether flirty picks follow who-likes-who */
+  /** Whether who-likes-who (and relationships) shape the picks */
   genderMatch: boolean;
 }
 
@@ -72,48 +54,72 @@ export function isInto(a: number, b: number, genders: (Gender | null)[], likes: 
   return g === null || g === "x" || theirLikes.includes(g);
 }
 
+const isTaken = (rel: Relationship | undefined) => rel !== null && rel !== undefined;
+
 /**
- * A flirty partner for `of` from `pool`: someone mutually interested if
- * possible, otherwise someone `of` is into, otherwise anyone.
+ * Whether spicy cards can be dealt to this player: always, unless they're
+ * taken and their partner isn't at the table to be the one they're with.
  */
-function pickMatch(of: number, pool: number[], ctx: TargetContext): number {
-  if (ctx.genderMatch) {
-    const mutual = pool.filter((j) => isInto(of, j, ctx.genders, ctx.likes) && isInto(j, of, ctx.genders, ctx.likes));
-    if (mutual.length) return pickWeighted(mutual, ctx.targetCounts);
-    const oneWay = pool.filter((j) => isInto(of, j, ctx.genders, ctx.likes));
-    if (oneWay.length) return pickWeighted(oneWay, ctx.targetCounts);
-  }
-  return pickWeighted(pool, ctx.targetCounts);
+export function canGetSpicy(player: number, relationships: Relationship[], genderMatch: boolean): boolean {
+  return !genderMatch || relationships[player] !== "away";
 }
 
+/**
+ * The player to fill a "someone they're into" slot for `of`:
+ * - a partner at the table always comes first;
+ * - spicy cards never name anyone who's taken;
+ * - someone taken whose partner isn't here gets paired with a person they
+ *   wouldn't usually be into, so mild cards stay harmless;
+ * - otherwise someone mutually interested, then someone `of` is into, then anyone.
+ */
+function pickMatch(of: number, pool: number[], ctx: TargetContext, spicy: boolean): number {
+  if (!ctx.genderMatch) return pickWeighted(pool, ctx.targetCounts);
+  const { genders, likes, relationships } = ctx;
+
+  const partner = relationships[of];
+  if (typeof partner === "number" && pool.includes(partner)) return partner;
+
+  const allowed = spicy ? pool.filter((j) => !isTaken(relationships[j])) : pool;
+  const candidates = allowed.length ? allowed : pool;
+
+  if (partner === "away") {
+    const notInto = candidates.filter((j) => !isInto(of, j, genders, likes));
+    return pickWeighted(notInto.length ? notInto : candidates, ctx.targetCounts);
+  }
+
+  const mutual = candidates.filter((j) => isInto(of, j, genders, likes) && isInto(j, of, genders, likes));
+  if (mutual.length) return pickWeighted(mutual, ctx.targetCounts);
+  const oneWay = candidates.filter((j) => isInto(of, j, genders, likes));
+  if (oneWay.length) return pickWeighted(oneWay, ctx.targetCounts);
+  return pickWeighted(candidates, ctx.targetCounts);
+}
+
+/** Fills the card's player slots, each with a different player while possible */
 export function personalizeCard(card: Card, ctx: TargetContext): Card {
-  const others = ctx.players.map((_, i) => i).filter((i) => i !== ctx.currentPlayerIndex);
-
-  // Custom cards: fill every slot, each with a different player while possible
   const slots = tokensIn(card.rule);
-  if (slots.length) {
-    if (!others.length) return card;
-    const targets: number[] = [];
-    for (const slot of slots) {
-      const unused = others.filter((i) => !targets.includes(i));
-      const pool = unused.length ? unused : others;
-      targets.push(slot === "match" ? pickMatch(ctx.currentPlayerIndex, pool, ctx) : pickWeighted(pool, ctx.targetCounts));
+  if (!slots.length) return card;
+
+  const others = ctx.players.map((_, i) => i).filter((i) => i !== ctx.currentPlayerIndex);
+  if (!others.length) return card;
+
+  const spicy = !!card.spicy;
+  const drinking = involvesDrinking(card.rule);
+  const targets: number[] = [];
+  for (const slot of slots) {
+    const unused = others.filter((i) => !targets.includes(i));
+    const pool = unused.length ? unused : others;
+    if (slot === "match") {
+      targets.push(pickMatch(ctx.currentPlayerIndex, pool, ctx, spicy));
+    } else {
+      // On spicy cards, random slots also stay away from taken players, and
+      // on drinking cards they prefer people who drink
+      let safe = spicy && ctx.genderMatch ? pool.filter((j) => !isTaken(ctx.relationships[j])) : pool;
+      if (drinking) {
+        const drinkers = safe.filter((j) => !ctx.sober?.[j]);
+        if (drinkers.length) safe = drinkers;
+      }
+      targets.push(pickWeighted(safe.length ? safe : pool, ctx.targetCounts));
     }
-    return { ...card, targets };
   }
-
-  const entry = TARGETABLE.find((t) => card.rule.includes(t.from));
-  if (!entry || Math.random() > TARGET_CHANCE) return card;
-  if (others.length < (entry.pair ? 2 : 1)) return card;
-
-  if (entry.pair) {
-    // Two other players paired up: the second is a match for the first
-    const first = pickWeighted(others, ctx.targetCounts);
-    const rest = others.filter((i) => i !== first);
-    const second = entry.flirty ? pickMatch(first, rest, ctx) : pickWeighted(rest, ctx.targetCounts);
-    return { ...card, targets: [first, second] };
-  }
-
-  const first = entry.flirty ? pickMatch(ctx.currentPlayerIndex, others, ctx) : pickWeighted(others, ctx.targetCounts);
-  return { ...card, targets: [first] };
+  return { ...card, targets };
 }

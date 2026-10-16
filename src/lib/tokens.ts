@@ -39,7 +39,14 @@ export function fromLabels(text: string): string {
 }
 
 /** Fills each slot in turn with the matching name */
-export function fillTokens(rule: string, names: string[]): string {
+export function fillTokens(rule: string, names: string[], lang: Lang = "en"): string {
   let i = 0;
-  return rule.replace(STORED, () => names[i++] ?? "");
+  const filled = rule.replace(STORED, () => names[i++] ?? "");
+  if (lang !== "fr") return filled;
+  // French elision before a name starting with a vowel: "de Anna" -> "d'Anna"
+  const used = names.filter((n) => /^[aeiouyhàâéèêëîïôûüAEIOUYHÀÂÉÈÊËÎÏÔÛÜ]/.test(n));
+  return used.reduce(
+    (text, name) => text.replace(new RegExp(`\\b(de|que|De|Que) ${name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`, "g"), (_, w: string) => `${w.slice(0, -1)}'${name}`),
+    filled,
+  );
 }

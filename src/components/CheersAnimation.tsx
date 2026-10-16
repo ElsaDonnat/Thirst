@@ -16,8 +16,19 @@ function Mug({ flip = false }: { flip?: boolean }) {
   );
 }
 
+interface CheersProps {
+  title: string;
+  subtitle: string;
+  /** Extra lines, e.g. linked players drinking along */
+  details?: string[];
+  /** Wait for a tap instead of closing by itself (when there's text to read) */
+  hold?: boolean;
+  holdHint?: string;
+  onDone: () => void;
+}
+
 /** Two mugs clink with a little burst, then calls onDone */
-export function CheersAnimation({ title, subtitle, onDone }: { title: string; subtitle: string; onDone: () => void }) {
+export function CheersAnimation({ title, subtitle, details = [], hold = false, holdHint, onDone }: CheersProps) {
   // Tapping to skip and the timer can both fire; only the first one counts
   const done = useRef(false);
   const finish = () => {
@@ -29,9 +40,11 @@ export function CheersAnimation({ title, subtitle, onDone }: { title: string; su
   finishRef.current = finish;
 
   useEffect(() => {
-    const timer = window.setTimeout(() => finishRef.current(), DURATION_MS);
+    if (hold) return;
+    // A little longer when there are linked players to read about
+    const timer = window.setTimeout(() => finishRef.current(), DURATION_MS + (details.length ? 1200 : 0));
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [hold, details.length]);
 
   const clink = { duration: 0.42, ease: [0.3, 1.4, 0.6, 1] as const };
 
@@ -78,6 +91,27 @@ export function CheersAnimation({ title, subtitle, onDone }: { title: string; su
       >
         {subtitle}
       </motion.p>
+      {details.map((line, i) => (
+        <motion.p
+          key={i}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 + i * 0.12, duration: 0.2 }}
+          className="mt-2 px-6 text-center text-base font-semibold text-white"
+        >
+          {line}
+        </motion.p>
+      ))}
+      {hold && holdHint && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.7 }}
+          transition={{ delay: 1, duration: 0.3 }}
+          className="mt-8 text-sm uppercase tracking-widest"
+        >
+          {holdHint}
+        </motion.p>
+      )}
     </motion.button>
   );
 }

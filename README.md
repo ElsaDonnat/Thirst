@@ -20,8 +20,11 @@ iPhones can't install apps from a file. For an iPhone friend the options are Tes
 
 - **Play tab**: a home screen with "Continue" for a saved game, "New game", and up to 3 saved presets. A new game is two short steps (packs, then players), with rules like cards per turn and number of rounds behind an Options button.
 - **During a game**: an "It's your turn" screen for each player, cards whose text sizes itself to fill the screen, a focus view when you pick a card (with Undo and Done), a cheers animation when someone takes the sips, a history panel with everyone's sips and cards, and "Undo last turn".
-- **Cards that name players**: some cards pick a player by name. The choice favours people who have been picked less and never picks the player whose turn it is.
-- **Who likes who**: when the Flirty pack is on, an optional switch lets you say what each player is (man, woman, neutral) and who they're into (men, women, both, no one). Flirty cards then pick someone the current player is into, ideally someone who's into them too. Anything left blank counts as open to anyone.
+- **Cards that name players**: 26 cards name a player directly (a random player, or someone the current player is into). The choice favours people who have been picked less and never picks the player whose turn it is. Cards that are better with a free choice still let you choose.
+- **Sober players**: a player marked Sober takes a forfeit (compliments, an embarrassing story, an unpopular opinion and so on) instead of the sips, and cards that involve drinking show a forfeit for them.
+- **Buddy and Mates**: the app remembers who's linked. When someone takes the sips their buddy drinks too, or does a forfeit if either of them is sober.
+- **Who likes who**: when the Flirty pack is on, an optional switch lets you say what each player is (man, woman, neutral), who they're into (men, women, both, no one) and whether they're in a relationship. Flirty cards then pick someone the current player is into, ideally someone who's into them too. Anything left blank counts as open to anyone.
+- **Couples**: spicy cards are never dealt to someone taken unless their partner is playing (then their partner is who they get), and never name a taken player. Custom cards can be marked "Not for couples".
 - **Custom cards with logic**: the card creator can drop a [random player] or [someone they're into] into the text, and the game fills in a name when the card comes up.
 - **Cards tab**: every card by pack, with a pinned pack filter, and your own custom cards.
 - **Info tab**: rules, card types, language, haptics, clear data, and a Buy Me a Coffee link.
@@ -56,7 +59,7 @@ cd android
 ./gradlew assembleDebug
 ```
 
-The file appears at `android/app/build/outputs/apk/debug/app-debug.apk`. Rename it to something like `Thirst-1.3.1.apk` before sharing it.
+The file appears at `android/app/build/outputs/apk/debug/app-debug.apk`. Rename it to something like `Thirst-1.4.0.apk` before sharing it.
 
 On Windows the Android build needs a JDK, and Android Studio's own one works: set `JAVA_HOME` to `C:\Program Files\Android\Android Studio\jbr`. `android/local.properties` must point at the Android SDK (Android Studio creates it).
 

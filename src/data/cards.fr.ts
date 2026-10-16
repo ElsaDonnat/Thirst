@@ -26,7 +26,7 @@ export const CARDS_FR: { name: string; rule: string }[] = [
   // 9 GULP!
   { name: "GLOUP !", rule: "Finis ton verre !" },
   // 10 Mates
-  { name: "Potes", rule: "Choisis un autre joueur pour être ton pote. Quand l'un boit, l'autre aussi." },
+  { name: "Potes", rule: "{random} est ton pote. Quand l'un de vous boit, l'autre aussi." },
   // 11 Mates
   { name: "Potes", rule: "Choisis un autre joueur pour être ton pote. Quand l'un boit, l'autre aussi." },
   // 12 Bad lover
@@ -48,19 +48,19 @@ export const CARDS_FR: { name: string; rule: string }[] = [
   // 20 Flirt
   { name: "Flirt", rule: "À partir de maintenant, termine toutes tes phrases par \"sexy\"." },
   // 21 Peacock
-  { name: "Paon", rule: "Fais une danse nuptiale devant un joueur au hasard. Si cette personne dit qu'elle est séduite, distribue 5 gorgées. Sinon, bois-les." },
+  { name: "Paon", rule: "Fais une danse nuptiale devant {match}. Si cette personne dit qu'elle est séduite, distribue 5 gorgées. Sinon, bois-les." },
   // 22 Acrobat
   { name: "Acrobate", rule: "Fais une roulade arrière ou bois un shot." },
   // 23 Lil' bird
-  { name: "Petit oiseau", rule: "Mange un truc qu'un autre joueur a mâché." },
+  { name: "Petit oiseau", rule: "Mange un truc que {random} a mâché." },
   // 24 Boardman
-  { name: "Surfeur", rule: "Choisis un joueur qui surfe sur toi." },
+  { name: "Surfeur", rule: "{random} surfe sur toi." },
   // 25 Sniff
   { name: "Sniff", rule: "Bois avec le nez ou finis ton verre." },
   // 26 Dumbfuck
   { name: "Abruti", rule: "Bois une fois en tenant ton verre à deux mains, sans plier les bras." },
   // 27 Llama
-  { name: "Lama", rule: "Laisse un autre joueur te cracher de l'eau au visage." },
+  { name: "Lama", rule: "Laisse {random} te cracher de l'eau au visage." },
   // 28 Charisma
   { name: "Charisme", rule: "Désigne le joueur que tu trouves le plus charismatique. Obéis à un ordre de sa part." },
   // 29 Love
@@ -72,7 +72,7 @@ export const CARDS_FR: { name: string; rule: string }[] = [
   // 32 Krach
   { name: "Krach", rule: "Dis \"1\", le joueur suivant peut dire un nombre plus grand ou s'arrêter. Continuez jusqu'à ce que quelqu'un choisisse de s'arrêter. Il boit 5 et le joueur d'avant boit le nombre qu'il a dit." },
   // 33 Gambler
-  { name: "Parieur", rule: "Lance une pièce. Face : tu bois un shot. Pile : choisis un joueur qui boit un shot." },
+  { name: "Parieur", rule: "Lance une pièce. Face : tu bois un shot. Pile : {random} boit un shot." },
   // 34 Clown
   { name: "Clown", rule: "Tu as une seule tentative pour faire rire au moins un autre joueur. Si tu rates, bois un shot." },
   // 35 Voice-over
@@ -84,7 +84,7 @@ export const CARDS_FR: { name: string; rule: string }[] = [
   // 38 Cupid
   { name: "Cupidon", rule: "Choisis deux joueurs qui se tiendront la main pendant un tour complet." },
   // 39 No way!?
-  { name: "Sans blague !?", rule: "Pose une question au joueur de ton choix : \"Parmi tous les joueurs, qui... ?\". Cette personne doit répondre à voix haute. Tout joueur qui veut savoir quelle était la question doit boire 15." },
+  { name: "Sans blague !?", rule: "Pose une question à {random} : \"Parmi tous les joueurs, qui... ?\". Cette personne doit répondre à voix haute. Tout joueur qui veut savoir quelle était la question doit boire 15." },
   // 40 No way!?
   { name: "Sans blague !?", rule: "Pose une question au joueur de ton choix : \"Parmi tous les joueurs, qui... ?\". Cette personne doit répondre à voix haute. Tout joueur qui veut savoir quelle était la question doit boire 15." },
   // 41 Cheat mode
@@ -96,7 +96,7 @@ export const CARDS_FR: { name: string; rule: string }[] = [
   // 44 ACTION!
   { name: "ACTION !", rule: "Donne un défi au joueur à ta droite." },
   // 45 ACTION!
-  { name: "ACTION !", rule: "Donne un défi au joueur de ton choix." },
+  { name: "ACTION !", rule: "Donne un défi à {random}." },
   // 46 VIRUS
   { name: "VIRUS", rule: "Tes deux voisins choisissent chacun une de leurs cartes et doivent la subir." },
   // 47 Influencer
@@ -108,7 +108,7 @@ export const CARDS_FR: { name: string; rule: string }[] = [
   // 50 Too pretty
   { name: "Trop canon", rule: "Désigne la plus belle personne de la partie. La beauté boit 4." },
   // 51 Buddy
-  { name: "Compagnon", rule: "Choisis un joueur qui boira chaque fois que tu bois." },
+  { name: "Compagnon", rule: "{random} boit chaque fois que tu bois." },
   // 52 Buddy
   { name: "Compagnon", rule: "Choisis un joueur qui boira chaque fois que tu bois." },
   // 53 Democracy
@@ -212,7 +212,7 @@ export const CARDS_FR: { name: string; rule: string }[] = [
   // 102 III
   { name: "III", rule: "Raconte-nous avec quels joueurs tu ferais un plan à trois et pourquoi." },
   // 103 Massage
-  { name: "Massage", rule: "Masse les épaules d'un joueur de ton choix jusqu'à ce qu'il soit satisfait." },
+  { name: "Massage", rule: "Masse les épaules de {match} jusqu'à ce que cette personne soit satisfaite." },
   // 104 Book lover
   { name: "Rat de bibliothèque", rule: "Prends un livre et ouvre-le à une page au hasard. Lis un paragraphe entier de la façon la plus sensuelle possible." },
   // 105 Don Juan
@@ -229,6 +229,38 @@ export const CARDS_FR: { name: string; rule: string }[] = [
   { name: "Quickshot", rule: "Tout le monde boit un shot en commençant en même temps. Le dernier à finir doit en prendre un autre." },
   // 111 Shit!
   { name: "Merde !", rule: "Le joueur qui a pioché cette carte doit finir son verre." },
+  // 112 Lap time
+  { name: "Sur les genoux", rule: "Assieds-toi sur les genoux de {match} jusqu'à ton prochain tour." },
+  // 113 Staring contest
+  { name: "Regard intense", rule: "Regarde {match} dans les yeux pendant 30 secondes sans rire. Le premier qui craque boit 3 gorgées." },
+  // 114 Hairdresser
+  { name: "Coiffeur", rule: "Joue avec les cheveux de {match} jusqu'à ton prochain tour, ou jusqu'à ce qu'on te demande d'arrêter." },
+  // 115 Sweet talk
+  { name: "Mots doux", rule: "Fais trois compliments sincères à {match}. Si tu rigoles pendant l'un d'eux, bois 3 gorgées." },
+  // 116 Slow dance
+  { name: "Slow", rule: "Fais un slow avec {match} le temps d'une chanson pendant que les autres fredonnent la musique." },
+  // 117 Smooth talker
+  { name: "Baratineur", rule: "Tente ta meilleure phrase de drague sur {match}. Si ça lui arrache un sourire, distribue 5 gorgées. Sinon, bois-les." },
+  // 118 Poet
+  { name: "Poète", rule: "Écris un poème d'amour de deux lignes pour {match} et lis-le à voix haute. {random} le note sur 10, et tu bois la différence." },
+  // 119 Hand in hand
+  { name: "Main dans la main", rule: "Tiens la main de {match} jusqu'à ton prochain tour." },
+  // 120 Hot seat
+  { name: "Sur le grill", rule: "{random} te pose une question flirty. Réponds honnêtement ou bois 5 gorgées." },
+  // 121 Wingman
+  { name: "Wingman", rule: "{random} a une minute pour convaincre {match} que tu es le meilleur match de la table. Si ça ne marche pas, toi et ton wingman buvez 3 gorgées chacun." },
+  // 122 Snack time
+  { name: "La becquée", rule: "Donne à manger à {match}, un snack ou une gorgée de ton verre. Sans les mains si t'es chaud." },
+  // 123 Whisper
+  { name: "Chuchotement", rule: "Chuchote un truc gentil à l'oreille de {match}. Personne d'autre n'a le droit de savoir ce que tu as dit." },
+  // 124 Pet name
+  { name: "Petit surnom", rule: "Trouve un surnom mignon à {match}. Tout le monde doit l'utiliser jusqu'à la fin de la partie, sinon c'est 2 gorgées." },
+  // 125 A toast
+  { name: "Un toast", rule: "Lève ton verre à {random} et dis pourquoi ça te fait plaisir que cette personne soit là ce soir. Vous buvez 2 gorgées chacun." },
+  // 126 Bartender
+  { name: "Barman", rule: "{random} doit te resservir à boire, tout de suite." },
+  // 127 Rock paper scissors
+  { name: "Pierre-feuille-ciseaux", rule: "Fais un pierre-feuille-ciseaux contre {random}. Le perdant boit 4 gorgées." },
 ];
 
 export const TYPE_LABELS_FR: Record<"Strike" | "Gift" | "Event" | "Equip" | "Special", string> = {
@@ -277,69 +309,5 @@ export const PACK_DESCRIPTIONS: Record<string, { en: string; fr: string }> = {
   CUSTOM: {
     en: "The cards you've written yourself.",
     fr: "Les cartes que tu as écrites toi-même.",
-  },
-};
-
-/**
- * Phrases the game swaps for a real player's name. Keys are the English
- * phrases; `from` appears verbatim inside the matching French rules, `to`
- * is the replacement ({p} / {p2} are player names).
- */
-export const TARGETABLE_FR: Record<string, { from: string; to: string }> = {
-  "Choose another player to be your mate.": {
-    from: "Choisis un autre joueur pour être ton pote.",
-    to: "{p} est ton pote.",
-  },
-  "Choose a player who surfs on you.": {
-    from: "Choisis un joueur qui surfe sur toi.",
-    to: "{p} surfe sur toi.",
-  },
-  "Eat something another player chewed.": {
-    from: "Mange un truc qu'un autre joueur a mâché.",
-    to: "Mange un truc que {p} a mâché.",
-  },
-  "Let another player spit water on your face.": {
-    from: "Laisse un autre joueur te cracher de l'eau au visage.",
-    to: "Laisse {p} te cracher de l'eau au visage.",
-  },
-  "Tails: Choose a player who drinks a shot.": {
-    from: "Pile : choisis un joueur qui boit un shot.",
-    to: "Pile : {p} boit un shot.",
-  },
-  "Choose a player who will drink every time you do.": {
-    from: "Choisis un joueur qui boira chaque fois que tu bois.",
-    to: "{p} boira chaque fois que tu bois.",
-  },
-  "Give 3 dares to the player of your choice.": {
-    from: "Donne 3 défis au joueur de ton choix.",
-    to: "Donne 3 défis à {p}.",
-  },
-  "Give a dare to the player of your choice.": {
-    from: "Donne un défi au joueur de ton choix.",
-    to: "Donne un défi à {p}.",
-  },
-  "Ask a player of your choice a question": {
-    from: "Pose une question au joueur de ton choix",
-    to: "Pose une question à {p}",
-  },
-  "Do a mating dance to a random player.": {
-    from: "Fais une danse nuptiale devant un joueur au hasard.",
-    to: "Fais une danse nuptiale devant {p}.",
-  },
-  "Choose a player who will call you \"master\"": {
-    from: "Choisis un joueur qui t'appellera \"maître\"",
-    to: "{p} t'appellera \"maître\"",
-  },
-  "Rub the shoulders of a player of your choosing": {
-    from: "Masse les épaules d'un joueur de ton choix",
-    to: "Masse les épaules de {p}",
-  },
-  "Choose two players who will hold hands for a full round.": {
-    from: "Choisis deux joueurs qui se tiendront la main pendant un tour complet.",
-    to: "{p} et {p2} se tiendront la main pendant un tour complet.",
-  },
-  "Choose two players who will dance for your own pleasure.": {
-    from: "Choisis deux joueurs qui danseront pour ton seul plaisir.",
-    to: "{p} et {p2} danseront pour ton seul plaisir.",
   },
 };

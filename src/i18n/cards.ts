@@ -1,7 +1,6 @@
 import type { Card } from "@/data/cards";
-import { CARDS_FR, PACK_DESCRIPTIONS, PACK_LABELS_FR, TARGETABLE_FR, TYPE_LABELS_FR } from "@/data/cards.fr";
-import { TARGETABLE } from "@/lib/targeting";
-import { fillTokens, tokensIn, withLabels } from "@/lib/tokens";
+import { CARDS_FR, PACK_DESCRIPTIONS, PACK_LABELS_FR, TYPE_LABELS_FR } from "@/data/cards.fr";
+import { fillTokens, withLabels } from "@/lib/tokens";
 import type { Lang } from "./strings";
 
 export interface CardText {
@@ -11,26 +10,16 @@ export interface CardText {
   names: string[];
 }
 
-/** A card's name and rule in `lang`, with any targeted players filled in */
+/**
+ * A card's name and rule in `lang`. Once dealt, its player slots hold real
+ * names; before that (e.g. in the Cards tab) they show as readable labels.
+ */
 export function cardText(card: Card, lang: Lang, players: string[] = []): CardText {
   // Built-in cards carry an id into the translation table; custom cards are
   // shown exactly as their author wrote them
   const base = lang === "fr" && card.id !== undefined ? CARDS_FR[card.id] ?? card : card;
-  let rule = base.rule;
   const names = (card.targets ?? []).map((i) => players[i]).filter(Boolean);
-
-  // Custom cards with player slots: names once dealt, readable labels before
-  if (tokensIn(rule).length) {
-    return { name: base.name, rule: names.length ? fillTokens(rule, names) : withLabels(rule, lang), names };
-  }
-
-  if (names.length) {
-    const entry = TARGETABLE.find((t) => card.rule.includes(t.from));
-    const phrase = entry && (lang === "fr" ? TARGETABLE_FR[entry.from] : entry);
-    if (phrase && rule.includes(phrase.from)) {
-      rule = rule.replace(phrase.from, phrase.to.replace("{p}", names[0]).replace("{p2}", names[1] ?? ""));
-    }
-  }
+  const rule = names.length ? fillTokens(base.rule, names, lang) : withLabels(base.rule, lang);
   return { name: base.name, rule, names };
 }
 

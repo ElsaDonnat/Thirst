@@ -2,6 +2,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { Dices, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ALL_EXTENSIONS, type Card } from "@/data/cards";
@@ -18,6 +19,7 @@ export function CustomCardDialog({ trigger }: { trigger: ReactNode }) {
   const [rule, setRule] = useState("");
   const [type, setType] = useState<Card["type"]>("Strike");
   const [extension, setExtension] = useState<string>("CUSTOM");
+  const [spicy, setSpicy] = useState(false);
   const ruleRef = useRef<HTMLTextAreaElement>(null);
 
   /** Drops a player slot where the cursor is (or at the end) */
@@ -41,9 +43,10 @@ export function CustomCardDialog({ trigger }: { trigger: ReactNode }) {
 
   const add = () => {
     if (!name.trim() || !rule.trim()) return;
-    addCustomCard({ type, name: name.trim(), rule: fromLabels(rule.trim()), extension });
+    addCustomCard({ type, name: name.trim(), rule: fromLabels(rule.trim()), extension, ...(spicy ? { spicy: true } : {}) });
     setName("");
     setRule("");
+    setSpicy(false);
     setOpen(false);
   };
 
@@ -91,6 +94,13 @@ export function CustomCardDialog({ trigger }: { trigger: ReactNode }) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="rounded-xl bg-secondary/60 px-3 py-2.5">
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[15px] font-semibold">{t("custom.spicy")}</span>
+              <Switch checked={spicy} onCheckedChange={setSpicy} />
+            </div>
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("custom.spicyHint")}</p>
           </div>
           <Button onClick={add} className="w-full py-5 text-base font-bold" disabled={!name.trim() || !rule.trim()}>
             {t("custom.add")}

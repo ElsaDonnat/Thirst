@@ -1,8 +1,10 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { LayoutGroup, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Beer, Check, History, LayoutGrid, Undo2 } from "lucide-react";
-import { SKIP_SIPS } from "@/hooks/useGameState";
+import { Beer, Check, History, LayoutGrid, Link2, Undo2, WineOff, Zap } from "lucide-react";
+import { followersOf, SKIP_SIPS } from "@/hooks/useGameState";
+import { FORFEITS, randomForfeit } from "@/data/forfeits";
+import { LINK_KIND } from "@/data/cards";
 import { useFitText } from "@/hooks/useFitText";
 import type { Card } from "@/data/cards";
 import { useGame } from "@/context/GameContext";
@@ -53,7 +55,7 @@ function HighlightedRule({ rule, names }: { rule: string; names: string[] }) {
 }
 
 function CardFace({ card, players, size }: { card: Card; players: string[]; size: "small" | "large" }) {
-  const { lang } = useT();
+  const { t, lang } = useT();
   const { name, rule, names } = cardText(card, lang, players);
   const ruleRef = useFitText<HTMLParagraphElement>(14, size === "large" ? 40 : 24, [rule, size]);
 
@@ -71,17 +73,86 @@ function CardFace({ card, players, size }: { card: Card; players: string[]; size
       <p ref={ruleRef} className={`min-h-0 flex-1 overflow-hidden font-body leading-snug text-foreground/85 whitespace-pre-line ${size === "large" ? "mt-3" : "mt-1"}`}>
         <HighlightedRule rule={rule} names={names} />
       </p>
+      {card.forfeit !== undefined && FORFEITS[card.forfeit] && (
+        <div className="mt-2 shrink-0 rounded-lg bg-primary/10 px-3 py-1.5">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-primary">{t("game.insteadOfDrinking")}</p>
+          <p className={`leading-snug text-foreground/85 ${size === "large" ? "text-base" : "text-xs"}`}>{FORFEITS[card.forfeit][lang]}</p>
+        </div>
+      )}
     </div>
+  );
+}
+
+/** A sober player's forfeit, shown big; Done ends the turn, Undo goes back to the cards */
+function ForfeitScreen({ player, forfeit, alsoNames, onDone, onCancel }: { player: string; forfeit: number; alsoNames: string[]; onDone: () => void; onCancel: () => void }) {
+  const { t, lang } = useT();
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.2 }}
+      className="absolute inset-0 z-40 flex flex-col rounded-2xl bg-gradient-to-br from-[#6D4FE3] to-[#4527BD] px-6 pb-5 pt-8 text-white"
+    >
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
+        <Zap className="h-12 w-12 fill-white/20" />
+        <p className="mt-3 text-sm font-semibold uppercase tracking-widest text-white/75">{t("game.forfeitTitle")}</p>
+        <p className="mt-1 text-lg font-semibold">{t("game.forfeitFor", { player })}</p>
+        <p className="mt-5 font-display text-3xl font-bold leading-tight">{FORFEITS[forfeit]?.[lang]}</p>
+        {alsoNames.map((name) => (
+          <p key={name} className="mt-3 text-base text-white/85">{t("game.linkedForfeit", { name })}</p>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <Button variant="outline" onClick={onCancel} className="h-auto gap-1.5 border-white/40 bg-transparent px-4 py-5 text-base text-white hover:bg-white/10 hover:text-white">
+          <Undo2 className="h-5 w-5" /> {t("game.undo")}
+        </Button>
+        <Button onClick={onDone} className="h-auto flex-1 gap-2 bg-white py-5 font-display text-lg font-bold text-primary hover:bg-white/90">
+          <Check className="h-5 w-5" /> {t("game.done")}
+        </Button>
+      </div>
+    </motion.div>
+  );
+}
+
+/** After a "choose a player" Buddy or Mates card: who did they pick? */
+function LinkPicker({ kind, players, current, onPick }: { kind: "buddy" | "mates"; players: string[]; current: number; onPick: (player?: number) => void }) {
+  const { t } = useT();
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.18 }}
+      className="absolute inset-0 z-40 flex flex-col bg-background px-4 pb-3 pt-6"
+    >
+      <h2 className="font-display text-3xl font-bold text-primary">{t("link.title")}</h2>
+      <p className="mt-1 text-base text-muted-foreground">{t(kind === "buddy" ? "link.buddy" : "link.mates")}</p>
+      <div className="mt-4 grid min-h-0 flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto">
+        {players.map((name, j) =>
+          j === current ? null : (
+            <Button key={j} variant="outline" onClick={() => onPick(j)} className="h-auto py-4 text-base font-bold">
+              {name}
+            </Button>
+          ),
+        )}
+      </div>
+      <Button variant="ghost" onClick={() => onPick(undefined)} className="mt-3 text-base">{t("link.skip")}</Button>
+    </motion.div>
   );
 }
 
 export function GameBoard() {
   const { state, pickCard, skipCards, undo, canUndo, leaveGame, settings } = useGame();
-  const { t } = useT();
+  const { t, lang } = useT();
   const [focused, setFocused] = useState<number | null>(null);
   const [cheering, setCheering] = useState(false);
+  const [forfeiting, setForfeiting] = useState(false);
+  const [skipForfeit, setSkipForfeit] = useState(0);
+  const [linkPick, setLinkPick] = useState<number | null>(null);
   const [historyOpen, setHistoryOpen] = useState(false);
   const currentPlayer = state.players[state.currentPlayerIndex];
+  const isSober = !!state.sober?.[state.currentPlayerIndex];
+  const followers = followersOf(state.links ?? [], state.currentPlayerIndex);
+  const followerNames = followers.map((f) => state.players[f]);
   const cardsLeft = state.deck.length + state.currentCards.length;
   const turnKey = `${state.round}-${state.currentPlayerIndex}-${state.usedCount}-${state.history.length}`;
   const roundText = state.maxRounds
@@ -98,14 +169,40 @@ export function GameBoard() {
     setHandoff(true);
     setFocused(null);
     setCheering(false);
+    setForfeiting(false);
+    setLinkPick(null);
     const timer = window.setTimeout(() => setHandoff(false), HANDOFF_MS);
     return () => window.clearTimeout(timer);
   }, [turnKey]);
 
   const finishSkip = useCallback(() => {
     setCheering(false);
-    skipCards();
-  }, [skipCards]);
+    setForfeiting(false);
+    skipCards(skipForfeit);
+  }, [skipCards, skipForfeit]);
+
+  const startSkip = () => {
+    feedback();
+    setSkipForfeit(randomForfeit());
+    if (isSober) setForfeiting(true);
+    else setCheering(true);
+  };
+
+  /** Done on the focused card: Buddy/Mates cards without a named player ask who was chosen */
+  const confirmCard = (index: number) => {
+    feedback();
+    const card = state.currentCards[index];
+    const needsChoice = card?.id !== undefined && LINK_KIND[card.id] && !card.targets?.length;
+    if (needsChoice) setLinkPick(index);
+    else pickCard(index);
+  };
+
+  // What linked players do when the current (drinking) player takes the sips
+  const cheersDetails = followers.map((f) =>
+    state.sober?.[f]
+      ? `${t("game.linkedForfeitFor", { name: state.players[f] })} ${FORFEITS[skipForfeit]?.[lang] ?? ""}`
+      : t("game.linkedDrink", { name: state.players[f], sips: SKIP_SIPS }),
+  );
 
   if (handoff) {
     return (
@@ -141,7 +238,9 @@ export function GameBoard() {
             className="mt-6 text-center"
           >
             <p className="text-lg font-semibold text-foreground/70">{roundText}</p>
-            <p className="mt-1 text-base text-muted-foreground">{t("game.handoffHint", { sips: SKIP_SIPS })}</p>
+            <p className="mt-1 text-base text-muted-foreground">
+              {isSober ? t("game.handoffHintSober") : t("game.handoffHint", { sips: SKIP_SIPS })}
+            </p>
           </motion.div>
         </motion.button>
       </div>
@@ -159,10 +258,22 @@ export function GameBoard() {
       >
         <div className="mb-3 flex items-start justify-between gap-2">
           <div className="min-w-0">
-            <h2 className="truncate font-display text-3xl font-bold leading-tight text-primary">{currentPlayer}</h2>
+            <div className="flex min-w-0 items-center gap-2">
+              <h2 className="truncate font-display text-3xl font-bold leading-tight text-primary">{currentPlayer}</h2>
+              {isSober && (
+                <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+                  <WineOff className="h-3.5 w-3.5" /> {t("game.soberBadge")}
+                </span>
+              )}
+            </div>
             <p className="text-base text-muted-foreground">
               {roundText} • {t("game.cardsLeft", { n: cardsLeft })}
             </p>
+            {followerNames.length > 0 && (
+              <p className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Link2 className="h-4 w-4" /> {t("game.linkedWith", { names: followerNames.join(", ") })}
+              </p>
+            )}
           </div>
           <div className="flex shrink-0 gap-1">
             {canUndo && (
@@ -205,16 +316,13 @@ export function GameBoard() {
         </div>
 
         <Button
-          onClick={() => {
-            feedback();
-            setCheering(true);
-          }}
+          onClick={startSkip}
           disabled={focused !== null}
           variant="outline"
           className="mt-3 h-auto w-full shrink-0 gap-2 border-2 border-destructive/60 py-5 text-lg font-bold text-destructive hover:bg-destructive/10 hover:text-destructive"
         >
-          <Beer className="h-6 w-6" />
-          {t("game.skip", { sips: SKIP_SIPS })}
+          {isSober ? <Zap className="h-6 w-6" /> : <Beer className="h-6 w-6" />}
+          {isSober ? t("game.skipSober") : t("game.skip", { sips: SKIP_SIPS })}
         </Button>
 
         {/* The chosen card grows into the middle so everyone can read it */}
@@ -237,10 +345,7 @@ export function GameBoard() {
                 <Undo2 className="h-5 w-5" /> {t("game.undo")}
               </Button>
               <Button
-                onClick={() => {
-                  feedback();
-                  pickCard(focused);
-                }}
+                onClick={() => confirmCard(focused)}
                 className="h-auto flex-1 gap-2 py-5 font-display text-lg font-bold"
               >
                 <Check className="h-5 w-5" /> {t("game.done")}
@@ -253,7 +358,30 @@ export function GameBoard() {
           <CheersAnimation
             title={t("game.cheers")}
             subtitle={t("game.sipsFor", { player: currentPlayer, sips: SKIP_SIPS })}
+            details={cheersDetails}
+            // A linked sober player's forfeit has to be read, so it waits for a tap
+            hold={followers.some((f) => state.sober?.[f])}
+            holdHint={t("game.tapToContinue")}
             onDone={finishSkip}
+          />
+        )}
+
+        {forfeiting && (
+          <ForfeitScreen
+            player={currentPlayer}
+            forfeit={skipForfeit}
+            alsoNames={followerNames}
+            onDone={finishSkip}
+            onCancel={() => setForfeiting(false)}
+          />
+        )}
+
+        {linkPick !== null && state.currentCards[linkPick]?.id !== undefined && (
+          <LinkPicker
+            kind={LINK_KIND[state.currentCards[linkPick].id!]}
+            players={state.players}
+            current={state.currentPlayerIndex}
+            onPick={(player) => pickCard(linkPick, player)}
           />
         )}
 
