@@ -69,7 +69,7 @@ function CardFace({ card, players, size }: { card: Card; players: string[]; size
           {packLabel(card.extension, lang)}
         </span>
       </div>
-      <h3 className={`font-display font-bold leading-tight text-foreground ${size === "large" ? "mt-2 text-4xl" : "text-2xl"}`}>{name}</h3>
+      <h3 className={`font-display font-medium leading-tight text-foreground ${size === "large" ? "mt-2 text-4xl" : "text-2xl"}`}>{name}</h3>
       <p ref={ruleRef} className={`min-h-0 flex-1 overflow-hidden font-body leading-snug text-foreground/85 whitespace-pre-line ${size === "large" ? "mt-3" : "mt-1"}`}>
         <HighlightedRule rule={rule} names={names} />
       </p>
@@ -97,7 +97,7 @@ function ForfeitScreen({ player, forfeit, alsoNames, onDone, onCancel }: { playe
         <Zap className="h-12 w-12 fill-white/40" />
         <p className="mt-3 text-sm font-semibold uppercase tracking-widest text-foreground/70">{t("game.forfeitTitle")}</p>
         <p className="mt-1 text-lg font-semibold">{t("game.forfeitFor", { player })}</p>
-        <p className="mt-5 font-display text-3xl font-bold leading-tight">{FORFEITS[forfeit]?.[lang]}</p>
+        <p className="mt-5 font-display text-3xl font-medium leading-tight">{FORFEITS[forfeit]?.[lang]}</p>
         {alsoNames.map((name) => (
           <p key={name} className="mt-3 text-base text-foreground/80">{t("game.linkedForfeit", { name })}</p>
         ))}
@@ -106,7 +106,7 @@ function ForfeitScreen({ player, forfeit, alsoNames, onDone, onCancel }: { playe
         <Button variant="outline" onClick={onCancel} className="h-auto gap-1.5 border-foreground/30 bg-transparent px-4 py-5 text-base text-foreground hover:bg-foreground/5">
           <Undo2 className="h-5 w-5" /> {t("game.undo")}
         </Button>
-        <Button onClick={onDone} className="h-auto flex-1 gap-2 py-5 font-display text-lg font-bold">
+        <Button onClick={onDone} className="h-auto flex-1 gap-2 py-5 font-display text-lg font-medium">
           <Check className="h-5 w-5" /> {t("game.done")}
         </Button>
       </div>
@@ -124,7 +124,7 @@ function LinkPicker({ kind, players, current, onPick }: { kind: "buddy" | "mates
       transition={{ duration: 0.18 }}
       className="absolute inset-0 z-40 flex flex-col bg-background px-4 pb-3 pt-6"
     >
-      <h2 className="font-display text-3xl font-bold text-brand">{t("link.title")}</h2>
+      <h2 className="font-display text-3xl font-medium text-brand">{t("link.title")}</h2>
       <p className="mt-1 text-base text-muted-foreground">{t(kind === "buddy" ? "link.buddy" : "link.mates")}</p>
       <div className="mt-4 grid min-h-0 flex-1 auto-rows-min grid-cols-2 gap-2 overflow-y-auto">
         {players.map((name, j) =>
@@ -259,7 +259,7 @@ export function GameBoard() {
         <div className="mb-3 flex items-start justify-between gap-2">
           <div className="min-w-0">
             <div className="flex min-w-0 items-center gap-2">
-              <h2 className="truncate font-display text-3xl font-bold leading-tight text-brand">{currentPlayer}</h2>
+              <h2 className="truncate font-display text-3xl font-medium leading-tight text-brand">{currentPlayer}</h2>
               {isSober && (
                 <span className="flex shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-brand">
                   <WineOff className="h-3.5 w-3.5" /> {t("game.soberBadge")}
@@ -346,7 +346,7 @@ export function GameBoard() {
               </Button>
               <Button
                 onClick={() => confirmCard(focused)}
-                className="h-auto flex-1 gap-2 py-5 font-display text-lg font-bold"
+                className="h-auto flex-1 gap-2 py-5 font-display text-lg font-medium"
               >
                 <Check className="h-5 w-5" /> {t("game.done")}
               </Button>

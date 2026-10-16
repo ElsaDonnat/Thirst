@@ -20,7 +20,7 @@ import type { Card } from "@/data/cards";
 import logoUrl from "@/assets/logo.webp";
 
 // Keep in step with package.json / store releases
-const APP_VERSION = "1.5.1";
+const APP_VERSION = "1.5.2";
 
 const BUY_ME_A_COFFEE_URL = "https://buymeacoffee.com/elsadonnat0";
 
@@ -39,7 +39,7 @@ export function InfoScreen() {
   return (
     <div className="mx-auto w-full max-w-lg space-y-4 px-4 pb-24 pt-6">
       <div>
-        <h1 className="font-display text-4xl font-bold text-brand">{t("info.title")}</h1>
+        <h1 className="font-display text-4xl font-medium text-brand">{t("info.title")}</h1>
         <p className="text-sm text-muted-foreground">{t("info.subtitle")}</p>
       </div>
 
@@ -47,7 +47,7 @@ export function InfoScreen() {
       <div className="rounded-2xl border border-border bg-card p-5">
         <div className="mb-3 flex items-center gap-2 text-foreground">
           <BookOpen className="h-5 w-5 text-brand" />
-          <h2 className="font-display text-lg font-bold">{t("info.howTo")}</h2>
+          <h2 className="font-display text-lg font-medium">{t("info.howTo")}</h2>
         </div>
         <ol className="list-decimal space-y-2 pl-5 font-body text-[15px] leading-relaxed text-foreground/80">
           <li><RichText text={t("info.step1")} /></li>
@@ -59,7 +59,7 @@ export function InfoScreen() {
 
       {/* Card types */}
       <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-3 font-display text-lg font-bold">{t("info.cardTypes")}</h2>
+        <h2 className="mb-3 font-display text-lg font-medium">{t("info.cardTypes")}</h2>
         <div className="space-y-3">
           {CARD_TYPES.map(({ type, className }) => (
             <div key={type} className="flex items-center gap-3">
@@ -74,7 +74,7 @@ export function InfoScreen() {
 
       {/* Settings */}
       <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="mb-3 font-display text-lg font-bold">{t("info.settings")}</h2>
+        <h2 className="mb-3 font-display text-lg font-medium">{t("info.settings")}</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -117,7 +117,7 @@ export function InfoScreen() {
         <p className="font-body text-[15px] leading-relaxed text-foreground/80">{t("info.support")}</p>
         <Button
           onClick={() => window.open(BUY_ME_A_COFFEE_URL, "_blank")}
-          className="mt-3 w-full gap-2 bg-amber-400 py-6 font-display text-lg font-bold text-amber-950 hover:bg-amber-500"
+          className="mt-3 w-full gap-2 bg-amber-400 py-6 font-display text-lg font-medium text-amber-950 hover:bg-amber-500"
         >
           <Coffee className="h-5 w-5" /> {t("info.coffee")}
         </Button>
@@ -126,7 +126,7 @@ export function InfoScreen() {
       {/* About */}
       <div className="rounded-2xl border border-border bg-card p-5 text-center">
         <img src={logoUrl} alt="" className="mx-auto mb-2 h-20 w-20 rounded-[22%] shadow-sm" draggable={false} />
-        <p className="font-display text-xl font-bold text-brand">THIRST</p>
+        <p className="font-display text-xl font-medium text-brand">THIRST</p>
         <p className="mt-0.5 text-sm text-muted-foreground">{t("info.version", { v: APP_VERSION })}</p>
         <p className="mt-3 font-body text-sm leading-relaxed text-muted-foreground">{t("info.about")}</p>
         <p className="mt-2 font-body text-sm font-semibold text-muted-foreground">{t("info.responsible")}</p>

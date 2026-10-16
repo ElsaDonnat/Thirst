@@ -52,7 +52,7 @@ export function WelcomeDialog() {
           <ol className="space-y-2.5">
             {steps.map((step, i) => (
               <li key={i} className="flex gap-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-sm font-bold text-brand">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/15 font-display text-sm font-medium text-brand">
                   {i + 1}
                 </span>
                 <span className="font-body text-[15px] leading-snug text-foreground/85">
@@ -62,7 +62,7 @@ export function WelcomeDialog() {
             ))}
           </ol>
           <p className="text-center text-xs leading-relaxed text-muted-foreground">{t("welcome.footer")}</p>
-          <Button onClick={() => dismiss(false)} className="w-full py-6 font-display text-lg font-bold">
+          <Button onClick={() => dismiss(false)} className="w-full py-6 font-display text-lg font-medium">
             {t("welcome.cta")}
           </Button>
         </div>

@@ -101,14 +101,17 @@
     padding-right: var(--safe-right);
   }
 
-  /* The THIRST wordmark style: chunky amber letters with a small dark drop
-     shadow, like a retro label */
+  /* The THIRST wordmark style: chunky amber letters with a thin dark outline
+     and a small dark drop shadow, like a retro label. paint-order puts the
+     outline behind the fill so it doesn't eat into the letters. */
   .title-retro {
     font-family: 'Lilita One', 'Fredoka', sans-serif;
     font-weight: 400;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.03em;
     color: hsl(var(--primary));
-    text-shadow: 0.055em 0.055em 0 hsl(var(--foreground));
+    -webkit-text-stroke: 0.06em hsl(var(--foreground));
+    paint-order: stroke fill;
+    text-shadow: 0.06em 0.06em 0 hsl(var(--foreground));
   }
 
   /* Text the player typed should stay selectable/editable */

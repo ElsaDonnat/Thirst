@@ -51,7 +51,7 @@ export function GameOver({ state, onPlayAgain, onBackToSetup }: GameOverProps) {
                   i === 0 ? "border-primary bg-primary/10" : "border-border bg-card"
                 }`}
               >
-                <span className="font-display text-lg font-bold text-foreground">{p.name}</span>
+                <span className="font-display text-lg font-medium text-foreground">{p.name}</span>
                 <span className="text-base font-semibold text-muted-foreground">
                   {[p.sips > 0 || p.forfeits === 0 ? t("over.sips", { n: p.sips }) : null, p.forfeits > 0 ? t("history.forfeits", { n: p.forfeits }) : null]
                     .filter(Boolean)
@@ -68,7 +68,7 @@ export function GameOver({ state, onPlayAgain, onBackToSetup }: GameOverProps) {
       </div>
 
       <div className="mt-4 space-y-2">
-        <Button onClick={onPlayAgain} className="w-full gap-2 py-6 font-display text-lg font-bold">
+        <Button onClick={onPlayAgain} className="w-full gap-2 py-6 font-display text-lg font-medium">
           <RotateCcw className="h-5 w-5" /> {t("over.playAgain")}
         </Button>
         <Button onClick={onBackToSetup} variant="outline" className="w-full gap-2 py-5">

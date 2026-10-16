@@ -47,7 +47,7 @@ export function PlayHome({ onNewGame, onLoadPreset }: PlayHomeProps) {
       <div className="mt-8 space-y-3">
         {inProgress && (
           <div className="rounded-2xl border-2 border-primary bg-primary/10 p-4">
-            <p className="font-display text-lg font-bold text-brand">{t("setup.resumeTitle")}</p>
+            <p className="font-display text-lg font-medium text-brand">{t("setup.resumeTitle")}</p>
             <p className="text-[15px] text-foreground/80">
               {t("setup.resumeDetail", { round: state.round, player: state.players[state.currentPlayerIndex] })}
             </p>
@@ -65,7 +65,7 @@ export function PlayHome({ onNewGame, onLoadPreset }: PlayHomeProps) {
         <Button
           onClick={onNewGame}
           variant={inProgress ? "outline" : "default"}
-          className="h-auto w-full gap-2 py-5 font-display text-xl font-bold"
+          className="h-auto w-full gap-2 py-5 font-display text-xl font-medium"
         >
           <Plus className="h-5 w-5" /> {t("home.newGame")}
         </Button>

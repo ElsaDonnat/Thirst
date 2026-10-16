@@ -297,7 +297,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
             <div className="mb-3 mt-2 flex items-end justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("wizard.step", { n: 1 })}</p>
-                <h1 className="font-display text-3xl font-bold text-brand">{t("setup.packsTitle")}</h1>
+                <h1 className="font-display text-3xl font-medium text-brand">{t("setup.packsTitle")}</h1>
               </div>
               <Button variant="outline" size="sm" className="h-9 shrink-0 gap-1.5" onClick={surpriseMe}>
                 <Shuffle className="h-4 w-4" /> {t("wizard.surprise")}
@@ -323,7 +323,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
                 );
               })}
             </div>
-            <Button onClick={() => setStep(2)} className="mt-3 w-full py-7 font-display text-xl font-bold">
+            <Button onClick={() => setStep(2)} className="mt-3 w-full py-7 font-display text-xl font-medium">
               {t("wizard.next")}
             </Button>
           </>
@@ -332,13 +332,13 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
             <div className={`mb-3 mt-2 items-end justify-between gap-2 ${typing ? "hidden" : "flex"}`}>
               <div>
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{t("wizard.step", { n: 2 })}</p>
-                <h1 className="font-display text-3xl font-bold text-brand">{t("setup.playersTitle")}</h1>
+                <h1 className="font-display text-3xl font-medium text-brand">{t("setup.playersTitle")}</h1>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setPlayerCount(Math.max(2, playerCount - 1))} disabled={playerCount <= 2}>
                   <Minus className="h-4 w-4" />
                 </Button>
-                <span className="w-7 text-center font-display text-2xl font-bold text-brand">{playerCount}</span>
+                <span className="w-7 text-center font-display text-2xl font-medium text-brand">{playerCount}</span>
                 <Button variant="outline" size="icon" className="h-10 w-10" onClick={() => setPlayerCount(Math.min(MAX_PLAYERS, playerCount + 1))} disabled={playerCount >= MAX_PLAYERS}>
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -349,7 +349,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
               {Array.from({ length: playerCount }).map((_, i) => (
                 <div key={i} className={matching ? "rounded-xl border border-border bg-card p-2" : ""}>
                 <div className="flex items-center gap-2">
-                  <span className="w-6 shrink-0 text-center font-display text-base font-bold text-muted-foreground">{i + 1}</span>
+                  <span className="w-6 shrink-0 text-center font-display text-base font-medium text-muted-foreground">{i + 1}</span>
                   <Input
                     ref={(el) => (nameRefs.current[i] = el)}
                     placeholder={t("setup.playerPlaceholder", { n: i + 1 })}
@@ -439,7 +439,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
               <Button variant="outline" onClick={() => setSaveOpen(true)} className="h-auto gap-1.5 px-4 py-4 text-sm font-semibold">
                 <Bookmark className="h-4 w-4" /> {t("preset.save")}
               </Button>
-              <Button onClick={onPlay} disabled={deckTooSmall} className="h-auto flex-1 gap-2 py-4 font-display text-xl font-bold">
+              <Button onClick={onPlay} disabled={deckTooSmall} className="h-auto flex-1 gap-2 py-4 font-display text-xl font-medium">
                 <Play className="h-5 w-5" /> {t("tabs.play")}
               </Button>
             </div>

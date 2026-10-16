@@ -27,7 +27,7 @@ function CardRow({ card, onDelete }: { card: Card; onDelete?: () => void }) {
           <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${typeBadgeMap[card.type] || "bg-muted text-muted-foreground"}`}>
             {typeLabel(card.type, lang)}
           </span>
-          <h3 className="truncate font-display text-lg font-bold text-foreground">{name}</h3>
+          <h3 className="truncate font-display text-lg font-medium text-foreground">{name}</h3>
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground/60">{packLabel(card.extension, lang)}</span>
@@ -62,7 +62,7 @@ export function CardsScreen() {
     <div className="mx-auto w-full max-w-lg px-4 pb-24 pt-6">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h1 className="font-display text-4xl font-bold text-brand">{t("cards.title")}</h1>
+          <h1 className="font-display text-4xl font-medium text-brand">{t("cards.title")}</h1>
           <p className="text-sm text-muted-foreground">
             {t("cards.count", { n: filtered.length })}
             {filter === "ALL" && customCards.length > 0 ? ` • ${t("cards.custom", { n: customCards.length })}` : ""}
