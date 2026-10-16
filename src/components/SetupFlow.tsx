@@ -334,7 +334,7 @@ export function SetupFlow({ initial, startStep, onExit }: SetupFlowProps) {
               </div>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto pb-1">
+            <div className="-mx-1.5 flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-1.5 pb-1.5 pt-1.5">
               {Array.from({ length: playerCount }).map((_, i) => (
                 <div key={i} className={matching ? "rounded-xl border border-border bg-card p-2" : ""}>
                 <div className="flex items-center gap-2">
