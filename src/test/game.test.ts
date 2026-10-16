@@ -173,6 +173,25 @@ describe("relationships", () => {
     }
   });
 
+  it("keeps the partner for the match slot even when a random slot comes first", () => {
+    const card: Card = { type: "Gift", name: "Date", rule: "{random} watches while you dance with {match}", extension: "CUSTOM" };
+    for (let i = 0; i < 300; i++) {
+      const [random, match] = personalizeCard(card, { ...ctx, relationships: [3, null, null, 0] }).targets!;
+      expect(match).toBe(3);
+      expect(random).not.toBe(3);
+    }
+  });
+
+  it("keeps a spicy card between partners even with only a random slot", () => {
+    const card: Card = { type: "Strike", name: "Lap", rule: "{random} sits on your lap", extension: "CUSTOM", spicy: true };
+    for (let i = 0; i < 100; i++) {
+      expect(personalizeCard(card, { ...ctx, relationships: [2, null, 0, null] }).targets).toEqual([2]);
+    }
+    // Without matching turned on, relationships are ignored entirely
+    const picks = new Set(Array.from({ length: 200 }, () => personalizeCard(card, { ...ctx, relationships: [2, null, 0, null], genderMatch: false }).targets![0]));
+    expect(picks.size).toBeGreaterThan(1);
+  });
+
   it("keeps spicy cards away from taken players whose partner isn't here", () => {
     expect(canGetSpicy(0, ["away"], true)).toBe(false);
     expect(canGetSpicy(0, [1, 0], true)).toBe(true);

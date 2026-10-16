@@ -1,7 +1,7 @@
 {
   "name": "thirst",
   "private": true,
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "Thirst — the ultimate drinking card game. Web app bundled as native Android & iOS apps with Capacitor.",
   "type": "module",
   "license": "UNLICENSED",

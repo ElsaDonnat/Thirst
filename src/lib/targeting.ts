@@ -104,12 +104,21 @@ export function personalizeCard(card: Card, ctx: TargetContext): Card {
 
   const spicy = !!card.spicy;
   const drinking = involvesDrinking(card.rule);
-  const targets: number[] = [];
-  for (const slot of slots) {
-    const unused = others.filter((i) => !targets.includes(i));
+  const partner = ctx.genderMatch ? ctx.relationships[ctx.currentPlayerIndex] : null;
+  const targets: number[] = new Array(slots.length);
+  const used = () => targets.filter((t) => t !== undefined);
+
+  // "Someone they're into" slots are filled first, so a random slot can't
+  // take the partner that a match slot should get
+  const order = slots.map((_, k) => k).sort((a, b) => Number(slots[b] === "match") - Number(slots[a] === "match"));
+  for (const k of order) {
+    const unused = others.filter((i) => !used().includes(i));
     const pool = unused.length ? unused : others;
-    if (slot === "match") {
-      targets.push(pickMatch(ctx.currentPlayerIndex, pool, ctx, spicy));
+    if (slots[k] === "match") {
+      targets[k] = pickMatch(ctx.currentPlayerIndex, pool, ctx, spicy);
+    } else if (spicy && typeof partner === "number" && pool.includes(partner)) {
+      // A spicy card drawn by someone whose partner is playing stays between them
+      targets[k] = partner;
     } else {
       // On spicy cards, random slots also stay away from taken players, and
       // on drinking cards they prefer people who drink
@@ -118,7 +127,7 @@ export function personalizeCard(card: Card, ctx: TargetContext): Card {
         const drinkers = safe.filter((j) => !ctx.sober?.[j]);
         if (drinkers.length) safe = drinkers;
       }
-      targets.push(pickWeighted(safe.length ? safe : pool, ctx.targetCounts));
+      targets[k] = pickWeighted(safe.length ? safe : pool, ctx.targetCounts);
     }
   }
   return { ...card, targets };
